@@ -8,9 +8,12 @@ import cv2 as cv
 import matplotlib.pyplot as plt
 
 class Difficulty(Enum):
-    EASY = os.path.join(path.Path.getcwd().parent, 'images', 'Easy.png')
-    MEDIUM = os.path.join(path.Path.getcwd().parent, "images", "Medium.png")
-    HARD = os.path.join(path.Path.getcwd().parent, "images", "Hard.png")
+    EASY = os.path.join(path.Path.getcwd(), 'images', 'Easy.png')
+    MEDIUM = os.path.join(path.Path.getcwd(), "images", "Medium.png")
+    HARD = os.path.join(path.Path.getcwd(), "images", "Hard.png")
+    TEST = os.path.join(path.Path.getcwd(), "images", "Test.png")
+    TEST_SMALL = os.path.join(path.Path.getcwd(), "images", "Test_Small.png")
+    TEST_SMALL_2 = os.path.join(path.Path.getcwd(), "images", "Test_Small_2.png")
 
 def load_image(Difficulty):
     """
@@ -26,13 +29,15 @@ def load_image(Difficulty):
     in BGR color space.
 
     :param Difficulty: Enum for images path
-    :return: original_image, new_image(color matched), integer_image(experimental)
+    :return: original_image, new_image(color matched), binary_image
     """
-    original_image = np.array(cv.imread(Difficulty.value, cv.IMREAD_LOAD_GDAL))
+    print("Loading Image with difficulty : ", Difficulty.name)
+    original_image = np.array(cv.imread(Difficulty.value))
+    print("Image dimension : ", original_image.shape)
 
-    new_image, integer_image = aggregate_colors(original_image)
+    new_image, binary_image, color_matrix = aggregate_colors(original_image)
 
-    return original_image, new_image, integer_image
+    return original_image, new_image, binary_image, color_matrix
 
 def aggregate_colors(image):
     """
@@ -41,8 +46,10 @@ def aggregate_colors(image):
     :return: new_image, integer_image(experimental)
     """
     new_img = np.zeros(shape=image.shape)
-    integer_img = np.zeros(shape=image.shape)
+    binary_image = np.zeros(shape=(len(image), len(image[0])))
 
+    # g, b(blue), y, w, d(black)
+    color_matrix = np.zeros(shape=(len(image), len(image[0])), dtype=np.string_)
     for row in range(len(image)):
         row_len = len(image[row])
         for pix in range(row_len):
@@ -52,43 +59,53 @@ def aggregate_colors(image):
 
             # Black boost
             if r < 5 and g < 5 and b < 5:
-                new_img[row][pix] = np.array([0., 0., 0., 0.])
-                integer_img[row][pix] = 4
+                new_img[row][pix] = np.array([0., 0., 0.])
+                color_matrix[row][pix] = "d"
             # White boost
             elif r > 250 and g > 250 and b > 250:
-                new_img[row][pix] = np.array([255., 255., 255., 0.])
-                integer_img[row][pix] = 0
+                new_img[row][pix] = np.array([255., 255., 255.])
+                color_matrix[row][pix] = "w"
 
             # Blue designation
             elif r + 10 < b and g + 10 < b:
-                new_img[row][pix] = np.array([255., 0., 0., 0.])
-                integer_img[row][pix] = 1
+                new_img[row][pix] = np.array([255., 0., 0.])
+                color_matrix[row][pix] = "b"
 
             # Green designation
             elif r + 10 < g and b + 10 < g:
+                # Yellow
                 if g > 200 and r > 200:
-                    new_img[row][pix] = np.array([0., 255., 255., 0.])
+                    new_img[row][pix] = np.array([0., 255., 255.])
+                    color_matrix[row][pix] = "y"
+                # Green
                 else:
-                    new_img[row][pix] = np.array([0., 128., 0., 0.])
-                    integer_img[row][pix] = 2
+                    new_img[row][pix] = np.array([0., 128., 0.])
+                    color_matrix[row][pix] = "g"
 
             elif g + 10 < r and b + 10 < r:
                 # Yellow designation
                 if g > 100 and r > 100:
-                    new_img[row][pix] = np.array([0., 255., 255., 0.])
+                    new_img[row][pix] = np.array([0., 255., 255.])
+                    color_matrix[row][pix] = "y"
                 # Red designation convert red to white
                 else:
-                    new_img[row][pix] = np.array([255., 255., 255., 0.])
-                    integer_img[row][pix] = 3
+                    new_img[row][pix] = np.array([255., 255., 255.])
+                    color_matrix[row][pix] = "w"
             else:
-                new_img[row][pix] = np.array([255., 255., 255., 0.])
-                integer_img[row][pix] = 0
+                new_img[row][pix] = np.array([255., 255., 255.])
+                color_matrix[row][pix] = "w"
 
-    return new_img, integer_img
+            # binary image
+            if r > 240 and g > 240 and b > 240:
+                binary_image[row][pix] = np.array(255)
+            else:
+                binary_image[row][pix] = np.array(0)
+
+    return new_img, binary_image, color_matrix
 
 
 def show_image(Difficulty):
-    original_image, new_image, integer_image = load_image(Difficulty)
+    original_image, new_image, integer_image, color_matrix = load_image(Difficulty)
     cv.namedWindow('image', cv.WINDOW_NORMAL)
     cv.imshow('image', new_image)
     cv.waitKey(0)
