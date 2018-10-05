@@ -8,12 +8,13 @@ import cv2 as cv
 import matplotlib.pyplot as plt
 
 class Difficulty(Enum):
-    EASY = os.path.join(path.Path.getcwd(), 'images', 'Easy.png')
-    MEDIUM = os.path.join(path.Path.getcwd(), "images", "Medium.png")
-    HARD = os.path.join(path.Path.getcwd(), "images", "Hard.png")
-    TEST = os.path.join(path.Path.getcwd(), "images", "Test.png")
-    TEST_SMALL = os.path.join(path.Path.getcwd(), "images", "Test_Small.png")
-    TEST_SMALL_2 = os.path.join(path.Path.getcwd(), "images", "Test_Small_2.png")
+    root_path = os.path.dirname(__file__)
+    EASY = os.path.join(root_path, 'images', 'Easy.png')
+    MEDIUM = os.path.join(root_path, "images", "Medium.png")
+    HARD = os.path.join(root_path, "images", "Hard.png")
+    TEST = os.path.join(root_path, "images", "Test.png")
+    TEST_SMALL = os.path.join(root_path, "images", "Test_Small.png")
+    TEST_SMALL_2 = os.path.join(root_path, "images", "Test_Small_2.png")
 
 def load_image(Difficulty):
     """
