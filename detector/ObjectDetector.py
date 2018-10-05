@@ -37,6 +37,9 @@ class ObjectDetector:
                         connected = True
                         label = self.label_plane[row + i][pix + j]
                         self.label_plane[row][pix] = label
+                        if lock == False:
+                            self.objects[label].insert_coordinate(coordinate=(row, pix))
+                            lock = True
 
                         if lock is False:
                             self.objects[label].insert_coordinate(coordinate=(row, pix))
