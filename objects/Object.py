@@ -1,12 +1,10 @@
 
 class Object:
-    coordinates = []
-    # by default
-    color = "w"
-
     def __init__(self, object_id):
         self.object_id = object_id
-        pass
+        self.coordinates = []
+        # by default
+        self.color = "w"
 
     def set_color(self, color):
         self.color = color
