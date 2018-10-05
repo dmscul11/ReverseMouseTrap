@@ -29,6 +29,7 @@ class ObjectDetector:
 
     def check_adjacent_area(self, row, pix):
         connected = False
+        lock = False
         try:
             for i in range(-2, 3):
                 for j in range(-2, 3):
@@ -36,8 +37,9 @@ class ObjectDetector:
                         connected = True
                         label = self.label_plane[row + i][pix + j]
                         self.label_plane[row][pix] = label
-
-                        self.objects[label].insert_coordinate(coordinate=(row, pix))
+                        if lock == False:
+                            self.objects[label].insert_coordinate(coordinate=(row, pix))
+                            lock = True
 
             # Encountering of a new object
             if connected is False:
