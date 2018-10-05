@@ -2,14 +2,16 @@ from loader.ImageLoader import *
 from detector.ObjectDetector import ObjectDetector
 import cv2 as cv
 
-original, new, binary, color_matrix = load_image(Difficulty.TEST_SMALL_2)
+if __name__ == "__main__":
+    original, new, binary, color_matrix = load_image(Difficulty.TEST_SMALL_2)
 
-obj_detector = ObjectDetector(new, binary, color_matrix)
-obj_detector.scan_image()
-obj_detector.print_label_plane()
+    detector = ObjectDetector(new, binary, color_matrix)
+    detector.scan_image()
+    objects = detector.get_objects()
 
-objects = obj_detector.get_objects()
-coord = objects[1].get_coordinates()
-print(coord)
-print(objects[1].get_color())
+    terminated = False
+    while terminated is not True:
+        pass
+
+
 
