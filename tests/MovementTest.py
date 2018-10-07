@@ -1,8 +1,8 @@
 from loader.ImageLoader import *
 from detector.ObjectDetector import ObjectDetector
-from objects.Movements import *
+from movements.Movements import *
 
-original, new, binary, color_matrix = load_image(Difficulty.TEST_SMALL_2)
+original, new, binary, color_matrix = load_image(Difficulty.EASY)
 
 obj_detector = ObjectDetector(new, binary, color_matrix)
 obj_detector.scan_image()

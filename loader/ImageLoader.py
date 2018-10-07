@@ -50,7 +50,7 @@ def aggregate_colors(image):
     binary_image = np.zeros(shape=(len(image), len(image[0])))
 
     # g, b(blue), y, w, d(black)
-    color_matrix = np.zeros(shape=(len(image), len(image[0])), dtype=np.string_)
+    color_matrix = np.zeros(shape=(len(image), len(image[0])), dtype=str)
     for row in range(len(image)):
         row_len = len(image[row])
         for pix in range(row_len):
