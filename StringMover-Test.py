@@ -23,7 +23,7 @@ edges, front_end, back_end = get_string_ends(string_coords, color_matrix)
 width = get_string_width(edges)
 print(width)
 for i in range(1):
-    pull_string(new, string_coords, 'front', front_end, back_end)
+    pull_string(new, string_coords, 'front', front_end, back_end, width)
 show_image(new)
 
 for e in front_end:

@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from collections import Counter
 
 
-def pull_string(image, string, pull_end, front_end, back_end):
+def pull_string(image, string, pull_end, front_end, back_end, width):
 
     # passes objects[string object index]
     # coords = string.get_coordinates()
@@ -32,6 +32,9 @@ def pull_string(image, string, pull_end, front_end, back_end):
     return new_image, new_string, new_front_end, new_back_end
 
 
+# need the edge information to find the width, and need the string
+# ends in order to continually update string, but both
+# only need to be found once in the beginning and recorded/updated
 def get_string_ends(string, color_matrix):
 
     # passes objects[string object index]
@@ -118,6 +121,7 @@ def get_string_ends(string, color_matrix):
     return edges, front_end, back_end
 
 
+# need width in order to continually update string
 def get_string_width(edges):
 
     distances = []
