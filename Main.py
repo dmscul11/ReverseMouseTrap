@@ -4,11 +4,7 @@ from movements.StringMover import *
 import cv2 as cv
 import numpy as np
 
-original, new, binary, color_matrix = load_image(Difficulty.MEDIUM)
-print(original.shape)
-print(new.shape)
-print(binary.shape)
-print(color_matrix.shape)
+original, new, binary, color_matrix = load_image(Difficulty.EASY)
 print(np.unique(new))
 print(np.unique(color_matrix.astype('U13')))
 
@@ -26,7 +22,11 @@ for i, e in enumerate(idx[0]):
 edges, front_end, back_end = get_string_ends(string_coords, color_matrix)
 width = get_string_width(edges)
 print(width)
-for e in edges:
+for i in range(1):
+    pull_string(new, string_coords, 'front', front_end, back_end)
+show_image(new)
+
+for e in front_end:
     new[e[0], e[1], :] = [0., 0., 0.]
     new[e[0]+1, e[1], :] = [0., 0., 0.]
     new[e[0]-1, e[1], :] = [0., 0., 0.]
@@ -44,4 +44,4 @@ for e in edges:
     new[e[0]+2, e[1]-2, :] = [0., 0., 0.]
     new[e[0]-2, e[1]-2, :] = [0., 0., 0.]
     new[e[0]-2, e[1]+2, :] = [0., 0., 0.]
-# show_image(new)
+show_image(new)

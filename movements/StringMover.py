@@ -5,7 +5,24 @@ import matplotlib.pyplot as plt
 from collections import Counter
 
 
-def pull_string(image, string, direction, pull_end, front_end, back_end):
+def pull_string(image, string, pull_end, front_end, back_end):
+
+    # passes objects[string object index]
+    # coords = string.get_coordinates()
+    # color = string.get_color().decode('UTF-8')
+    # first_pixel = [coords[0][0], coords[0][1]]
+    coords = string
+
+    # delete back end pixels and add line to front end
+    if pull_end == 'front':
+
+        # update front (added line) and back (green pixels touching deleted pixels) ends
+
+    # delete front end pixels and add line to back end
+    else:
+
+        # update front (green pixels touching deleted pixels) and back (added line) ends
+
 
     new_image = image
     new_string = string
@@ -75,9 +92,28 @@ def get_string_ends(string, color_matrix):
         counts.append(cnt)
 
     # find max counts pixels
+    top = sorted(np.unique(counts), reverse=True)[:2]
+    top_idx = np.nonzero((counts == top[0]) ^ (counts == top[1]))
+    ends = [edges[i] for i in top_idx[0]]
 
-    print(counts)
-    breaking
+    # find pixel closest to top left as front
+    distances = []
+    for e in ends:
+        dist = int(round(math.sqrt((e[0] - 0)**2 + (e[1] - 0)**2)))
+        distances.append(dist)
+    min_dist = min(distances)
+    min_idx = distances.index(min_dist)
+    min_pixel = ends[min_idx]
+
+    # separate into front and back
+    front_end = []
+    back_end = []
+    for e in ends:
+        dist = math.sqrt((e[0] - min_pixel[0])**2 + (e[1] - min_pixel[1])**2)
+        if dist < 50:
+            front_end.append(e)
+        else:
+            back_end.append(e)
 
     return edges, front_end, back_end
 
@@ -93,6 +129,7 @@ def get_string_width(edges):
                 dist = int(round(math.sqrt((p2[0] - p1[0])**2 + (p2[1] - p1[1])**2)))
                 if dist < 50:
                     distances.append(dist)
+
     modes = Counter(distances).most_common(5)
 
     width = modes[0][0]
