@@ -86,4 +86,7 @@ class ObjectDetector:
     def get_stats(self):
         return self.number_of_labels
 
+    def get_label_plane(self):
+        return self.label_plane
+
 
