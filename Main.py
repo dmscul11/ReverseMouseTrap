@@ -1,5 +1,6 @@
 from loader.ImageLoader import *
 from detector.ObjectDetector import ObjectDetector
+from world.World import World
 import cv2 as cv
 
 if __name__ == "__main__":
@@ -9,9 +10,13 @@ if __name__ == "__main__":
     detector.scan_image()
     objects = detector.get_objects()
 
-    terminated = False
-    while terminated is not True:
-        pass
+    show_image(new)
+
+    world = World(objects=objects, original_image=original, aggregated_image=new, binary_image=binary,
+                  color_matrix=color_matrix)
+
+    while world.terminated is not True:
+        world.simulate()
 
 
 

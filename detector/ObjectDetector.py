@@ -2,6 +2,7 @@ import cv2 as cv
 import numpy as np
 
 from objects.Object import Object
+from objects.Colors import Colors
 
 class ObjectDetector:
     labels = [1]
@@ -78,6 +79,8 @@ class ObjectDetector:
             print()
 
     def get_objects(self):
+        object_list = []
+        print(self.objects)
         return self.objects
 
     def get_stats(self):
