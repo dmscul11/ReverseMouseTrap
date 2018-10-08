@@ -6,7 +6,7 @@ import cv2 as cv
 import sys
 
 if __name__ == "__main__":
-    original, new, binary, color_matrix = load_image(Difficulty.TEST_SMALL_2)
+    original, new, binary, color_matrix = load_image(Difficulty.HARD)
 
     detector = NewObjectDetector(new, binary, color_matrix)
     detector.scan_image()
