@@ -5,31 +5,143 @@ import matplotlib.pyplot as plt
 from collections import Counter
 
 
-def pull_string(image, string, pull_end, front_end, back_end, width):
+def pull_string(image, string, pull_end, front_end, pull_dir, back_end, width):
 
     # passes objects[string object index]
     # coords = string.get_coordinates()
     # color = string.get_color().decode('UTF-8')
     # first_pixel = [coords[0][0], coords[0][1]]
-    coords = string
+    coords = list(string)
+    new_string = list(coords)
 
     # delete back end pixels and add line to front end
     if pull_end == 'front':
 
-        # update front (added line) and back (green pixels touching deleted pixels) ends
+        # find frontier to create new line of pixels
+        most_left = 100000
+        if pull_dir == 'up':
+            start_row = 100000
+        elif pull_dir == 'down':
+            start_row = 0
+        for f in front_end:
+            if f[1] < most_left:
+                most_left = f[1]
+            if pull_dir == 'up':
+                if f[0] < start_row:
+                    start_row = f[0]
+            elif pull_dir == 'down':
+                if f[0] > start_row:
+                    start_row = f[0]
+
+        # update front (added line of width) pixels
+        new_front_end = []
+        for i in range(width):
+            if pull_dir == "up":
+                new_front_end.append((start_row - 1, most_left + i))
+                new_string.append((start_row - 1, most_left + i))
+                image[start_row - 1, most_left + i, :] = [0., 128., 0.]
+            elif pull_dir == "down":
+                new_front_end.append((start_row + 1, most_left + i))
+                new_string.append((start_row + 1, most_left + i))
+                image[start_row + 1, most_left + i, :] = [0., 128., 0.]
+
+        # update new back end (green pixels touching deleted pixels)
+        new_back_end = []
+        for bp in back_end:
+            for j in range(1, 2):
+                if ((bp[0] + j, bp[1]) in string) and ((bp[0] + j, bp[1]) not in new_back_end):
+                    new_back_end.append((bp[0] + j, bp[1]))
+                if ((bp[0] - j, bp[1]) in string) and ((bp[0] - j, bp[1]) not in new_back_end):
+                    new_back_end.append((bp[0] - j, bp[1]))
+                if ((bp[0], bp[1] + j) in string) and ((bp[0], bp[1] + j) not in new_back_end):
+                    new_back_end.append((bp[0], bp[1] + j))
+                if ((bp[0], bp[1] - j) in string) and ((bp[0], bp[1] - j) not in new_back_end):
+                    new_back_end.append((bp[0], bp[1] - j))
+                if ((bp[0] + j, bp[1] + j) in string) and ((bp[0] + j, bp[1] + j) not in new_back_end):
+                    new_back_end.append((bp[0] + j, bp[1] + j))
+                if ((bp[0] + j, bp[1] - j) in string) and ((bp[0] + j, bp[1] - j) not in new_back_end):
+                    new_back_end.append((bp[0] + j, bp[1] - j))
+                if ((bp[0] - j, bp[1] + j) in string) and ((bp[0] - j, bp[1] + j) not in new_back_end):
+                    new_back_end.append((bp[0] - j, bp[1] + j))
+                if ((bp[0] - j, bp[1] - j) in string) and ((bp[0] - j, bp[1] - j) not in new_back_end):
+                    new_back_end.append((bp[0] - j, bp[1] - j))
+
+            # remove old back end pixels from string coords and make blue in image
+            new_string = list(value for value in new_string if value != bp)
+            image[bp[0], bp[1], :] = [255., 255., 255.]
+        new_back_end = list(set(new_back_end))
 
     # delete front end pixels and add line to back end
     else:
 
-        # update front (green pixels touching deleted pixels) and back (added line) ends
+        # find frontier to create new line of pixels
+        most_left = 100000
+        if pull_dir == 'up':
+            start_row = 100000
+        elif pull_dir == 'down':
+            start_row = 0
+        for f in back_end:
+            if f[1] < most_left:
+                most_left = f[1]
+            if pull_dir == 'up':
+                if f[0] < start_row:
+                    start_row = f[0]
+            elif pull_dir == 'down':
+                if f[0] > start_row:
+                    start_row = f[0]
+
+        # update front (added line of width) pixels
+        new_back_end = []
+        for i in range(width):
+            if pull_dir == "up":
+                new_back_end.append((start_row - 1, most_left + i))
+                new_string.append((start_row - 1, most_left + i))
+                image[start_row - 1, most_left + i, :] = [0., 128., 0.]
+            elif pull_dir == "down":
+                new_back_end.append((start_row + 1, most_left + i))
+                new_string.append((start_row + 1, most_left + i))
+                image[start_row + 1, most_left + i, :] = [0., 128., 0.]
+
+        # update new front end (green pixels touching deleted pixels)
+        new_front_end = []
+        for bp in front_end:
+            for j in range(1, 2):
+                if ((bp[0] + j, bp[1]) in string) and ((bp[0] + j, bp[1]) not in new_front_end):
+                    new_front_end.append((bp[0] + j, bp[1]))
+                if ((bp[0] - j, bp[1]) in string) and ((bp[0] - j, bp[1]) not in new_front_end):
+                    new_front_end.append((bp[0] - j, bp[1]))
+                if ((bp[0], bp[1] + j) in string) and ((bp[0], bp[1] + j) not in new_front_end):
+                    new_front_end.append((bp[0], bp[1] + j))
+                if ((bp[0], bp[1] - j) in string) and ((bp[0], bp[1] - j) not in new_front_end):
+                    new_front_end.append((bp[0], bp[1] - j))
+                if ((bp[0] + j, bp[1] + j) in string) and ((bp[0] + j, bp[1] + j) not in new_front_end):
+                    new_front_end.append((bp[0] + j, bp[1] + j))
+                if ((bp[0] + j, bp[1] - j) in string) and ((bp[0] + j, bp[1] - j) not in new_front_end):
+                    new_front_end.append((bp[0] + j, bp[1] - j))
+                if ((bp[0] - j, bp[1] + j) in string) and ((bp[0] - j, bp[1] + j) not in new_front_end):
+                    new_front_end.append((bp[0] - j, bp[1] + j))
+                if ((bp[0] - j, bp[1] - j) in string) and ((bp[0] - j, bp[1] - j) not in new_front_end):
+                    new_front_end.append((bp[0] - j, bp[1] - j))
+
+            # remove old front end pixels from string coords and make blue in image
+            new_string = list(value for value in new_string if value != bp)
+            image[bp[0], bp[1], :] = [255., 255., 255.]
+        new_front_end = list(set(new_front_end))
+
+    return image, new_string, new_front_end, new_back_end
 
 
-    new_image = image
-    new_string = string
-    new_front_end = front_end
-    new_back_end = back_end
+# check which end of string object moving is pulling the string
+def end_check(object, string, front_end, back_end):
 
-    return new_image, new_string, new_front_end, new_back_end
+    # get COM of object
+
+    # if COM closer to first front_end pixel
+    end = 'front'
+
+    # otherwise COM closer to back_end pixel
+
+    return end
 
 
 # need the edge information to find the width, and need the string
