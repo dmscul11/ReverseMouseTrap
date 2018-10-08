@@ -40,6 +40,14 @@ def load_image(Difficulty):
 
     return original_image, new_image, binary_image, color_matrix
 
+def second_load_image(image):
+    original_image = image
+    print("Image dimension : ", original_image.shape)
+
+    new_image, binary_image, color_matrix = aggregate_colors(original_image)
+
+    return original_image, new_image, binary_image, color_matrix
+
 def aggregate_colors(image):
     """
 

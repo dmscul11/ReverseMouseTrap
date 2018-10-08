@@ -12,6 +12,9 @@ class Object:
         # An object with collision_lock set to True cannot move further
         self.collision_lock = False
 
+    def object_post_processing(self):
+        self.size = len(self.coordinates)
+
     def set_color(self, color):
         self.color = color
 
@@ -23,3 +26,6 @@ class Object:
 
     def get_color(self):
         return self.color
+
+    def get_size(self):
+        return self.size
