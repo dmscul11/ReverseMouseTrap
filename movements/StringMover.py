@@ -161,21 +161,21 @@ def get_string_ends(string, color_matrix):
 
         # count up neighboring pixels not green
         count = 0
-        if color_matrix[(p[0] - 1, p[1])].decode('UTF-8') != 'g':
+        if color_matrix[(p[0] - 1, p[1])] != 'g':
             count = count + 1
-        if color_matrix[(p[0] + 1, p[1])].decode('UTF-8') != 'g':
+        if color_matrix[(p[0] + 1, p[1])] != 'g':
             count = count + 1
-        if color_matrix[(p[0], p[1] + 1)].decode('UTF-8') != 'g':
+        if color_matrix[(p[0], p[1] + 1)] != 'g':
             count = count + 1
-        if color_matrix[(p[0], p[1] - 1)].decode('UTF-8') != 'g':
+        if color_matrix[(p[0], p[1] - 1)] != 'g':
             count = count + 1
-        if color_matrix[(p[0] - 1, p[1] + 1)].decode('UTF-8') != 'g':
+        if color_matrix[(p[0] - 1, p[1] + 1)] != 'g':
             count = count + 1
-        if color_matrix[(p[0] - 1, p[1] - 1)].decode('UTF-8') != 'g':
+        if color_matrix[(p[0] - 1, p[1] - 1)] != 'g':
             count = count + 1
-        if color_matrix[(p[0] + 1, p[1] + 1)].decode('UTF-8') != 'g':
+        if color_matrix[(p[0] + 1, p[1] + 1)] != 'g':
             count = count + 1
-        if color_matrix[(p[0] + 1, p[1] - 1)].decode('UTF-8') != 'g':
+        if color_matrix[(p[0] + 1, p[1] - 1)] != 'g':
             count = count + 1
 
         # if has 4 or more neighbors then is a corner or edge
