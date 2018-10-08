@@ -37,10 +37,11 @@ class ObjectDetector:
             for j in range(-1, 2):
                 try:
                     if self.label_plane[row + i][pix + j] != 0.:
-                        connected = True
+                        if self.color_matrix[row + i][pix + j] == self.color_matrix[row][pix]:
+                            connected = True
 
-                        label = self.label_plane[row + i][pix + j]
-                        self.label_plane[row][pix] = label
+                            label = self.label_plane[row + i][pix + j]
+                            self.label_plane[row][pix] = label
 
                         if lock is False:
                             self.objects[label].insert_coordinate(coordinate=(row, pix))
@@ -78,7 +79,6 @@ class ObjectDetector:
 
     def get_objects(self):
         object_list = []
-        print(self.objects)
         return self.objects
 
     def get_stats(self):

@@ -117,3 +117,9 @@ def show_image(image):
     cv.imshow('image', image)
     cv.waitKey(0)
     cv.destroyAllWindows()
+
+def print_color_matrix(color_matrix):
+    for row in range(len(color_matrix)):
+        for pix in range(len(color_matrix[0])):
+            print(color_matrix[row][pix], end=" ")
+        print()
