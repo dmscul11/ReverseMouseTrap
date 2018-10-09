@@ -11,6 +11,7 @@ import numpy as np
 class World:
     def __init__(self, objects, original_image, aggregated_image, binary_image, color_matrix, object_detector):
         self.terminated = False
+        self.steps = 0
 
         self.world_row = len(original_image)
         self.world_col = len(original_image[0])
@@ -31,12 +32,12 @@ class World:
         :return: Terminated: Bool
         """
 
-        # Classify all objects that has to fall "check stability"
+        # Classify all objects that has to fall. "check stability"
         # Given the objects that are going to fall, render them "move_object_down"
         # Continue
-
-        for i in range(10):
-            move_object_down(object=self.objects[1])
+        unstable_objects, unstable_centeroids = self.reasoner.check_stability_of_all_objects(self.object_detector, self.objects)
+        print("Unstable Objects: ", unstable_objects)
+        print("Unstable Centeroids: ", unstable_centeroids)
 
         reconstructed = self.reconstruct_image(self.objects)
         show_image(reconstructed)
@@ -45,16 +46,9 @@ class World:
         OUR LOGIC
         """
 
-        self.terminated = True
-
-    def check_stability_of_all_objects(self):
-        unstable_objects = []
-
-        for cluster_id in self.objects.keys():
-            stability = Falling.check_instability(obj_detector=self.object_detector, cluster_id=cluster_id)
-            print(stability)
-
-        return
+        self.steps += 1
+        if self.steps == 2:
+            self.terminated = True
 
     def get_color_BGR(self, color_string):
         if color_string == "w":
@@ -82,7 +76,7 @@ class World:
     def reconstruct_image(self, objects):
         reconstructed_image = np.full(shape=(self.world_row, self.world_col, 3), fill_value=self.get_color_BGR(color_string="w"))
 
-        for object_idx in range(1, len(objects)):
+        for object_idx in range(1, len(objects) + 1):
             coordinates = objects[object_idx].get_coordinates()
             color = objects[object_idx].get_color()
 
