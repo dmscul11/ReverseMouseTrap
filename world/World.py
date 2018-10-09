@@ -38,6 +38,7 @@ class World:
         # Continue
 
         self.simulate_falling()
+        self.detect_contact()
 
         reconstructed_image = self.reconstruct_image(self.objects)
 
@@ -60,6 +61,10 @@ class World:
         for unstable_id in unstable_objects:
             move_object_down(self.objects[unstable_id])
 
+    def detect_contact(self):
+        new_object_detector, affected_neighbors = self.reasoner.check_free_movement(self.object_detector, self.objects)
+        print(new_object_detector)
+        print(affected_neighbors)
 
     def get_color_BGR(self, color_string):
         if color_string == "w":

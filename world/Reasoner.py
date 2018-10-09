@@ -1,4 +1,4 @@
-from movements.Falling import check_instability
+from movements.Falling import *
 
 class Reasoner:
     def __init__(self):
@@ -21,3 +21,8 @@ class Reasoner:
                 centeroids.append((cluster_id, stability))
 
         return unstable_objects, centeroids
+
+    def check_free_movement(self, object_detector, objects):
+        for cluster_id in objects.keys():
+            new_object_detector, affected_neighbors = free_movement(object_detector, cluster_id)
+            print(new_object_detector, " ", affected_neighbors)
