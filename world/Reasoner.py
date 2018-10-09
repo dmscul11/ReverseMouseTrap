@@ -14,8 +14,6 @@ class Reasoner:
                 pass
             elif stability == -1: # Unstable
                 unstable_objects.append(cluster_id)
-            elif stability == -1:
-                pass
             else:
                 # Centeroid
                 centeroids.append((cluster_id, stability))

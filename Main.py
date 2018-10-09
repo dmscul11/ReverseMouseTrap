@@ -2,7 +2,7 @@ import os
 
 from loader.ImageLoader import *
 from detector.ObjectDetector import ObjectDetector
-from detector.NewObjectDetector import *
+from detector.NewObjectDetector import NewObjectDetector
 from movements.Pivoting import *
 from movements.StringMover import *
 from world.World import World
@@ -31,7 +31,7 @@ def create_movie(image_name, frame_width, frame_height):
     vid.release()
 
 if __name__ == "__main__":
-    img_difficulty = Difficulty.TEST_SMALL
+    img_difficulty = Difficulty.EASY
     original, new, binary, color_matrix = load_image(img_difficulty)
 
     detector = NewObjectDetector(new, binary, color_matrix)

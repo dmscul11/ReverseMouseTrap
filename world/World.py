@@ -2,10 +2,10 @@ from world.Reasoner import Reasoner
 from movements.Movements import *
 from objects.Colors import Colors
 
-from detector.NewObjectDetector import *
-
 from movements.Falling import *
 from movements.Pivoting import *
+
+from detector.NewObjectDetector import NewObjectDetector
 
 import cv2 as cv
 
@@ -42,14 +42,16 @@ class World:
         # Continue
 
         unstable = self.simulate_falling()
-        reconstructed_image = self.reconstruct_image(self.objects)
 
         neighbors = self.detect_contact(unstable)
         self.contact_interaction(neighbors)
 
-        self.update_render(self.steps, reconstructed_image)
-
-        self.reload_image(step=self.steps)
+        try:
+            reconstructed_image = self.reconstruct_image(self.objects)
+            self.update_render(self.steps, reconstructed_image)
+            self.reload_image(step=self.steps)
+        except:
+            self.terminated = True
 
         print("Step : ", self.steps)
         self.steps += 1
@@ -81,21 +83,25 @@ class World:
 
     def contact_interaction(self, neighbors):
         for key in neighbors.keys():
-            # new_image, new_coord, new_center = rotate_pivot(self.object_detector, self.aggregated_image, neighbors[key][0], key, 'counterclockwise')
             new_image, new_coord, new_center = rotate_pivot(self.object_detector, self.aggregated_image,
-                                                            2, 3, 'counterclockwise')
+                                                            neighbors[key][0], key + 1, 'counterclockwise')
+
             self.objects[neighbors[key][0]].coordinates = new_coord
 
     def reload_image(self, step):
-        # reload previous image
-        dir_path = os.path.join(os.path.dirname(__file__), "render_files")
-        path = os.path.join(dir_path, str(step).zfill(5) + ".png")
-        self.original_image, self.aggregated_image, self.binary_image, self.color_matrix = reload(path)
+        if step != 0:
+            # reload previous image
+            dir_path = os.path.join(os.path.dirname(__file__), "render_files")
+            path = os.path.join(dir_path, str(step).zfill(5) + ".png")
+            self.original_image, self.aggregated_image, self.binary_image, self.color_matrix = reload(path)
 
-        det = NewObjectDetector(self.original_image, self.binary_image, self.color_matrix)
-        det.scan_image()
+            det = NewObjectDetector(self.original_image, self.binary_image, self.color_matrix)
+            det.scan_image()
+            det.objects = self.objects
+            self.object_detector = det
 
-        self.objects = det.get_objects()
+            # self.objects = det.get_objects()
+
 
     def get_color_BGR(self, color_string):
         if color_string == "w":
