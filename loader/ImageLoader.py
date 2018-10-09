@@ -1,5 +1,5 @@
 import os
-#import path
+# import path
 from enum import Enum
 
 import numpy as np
@@ -15,6 +15,7 @@ class Difficulty(Enum):
     TEST = os.path.join(root_path, "images", "Test.png")
     TEST_SMALL = os.path.join(root_path, "images", "Test_Small.png")
     TEST_SMALL_2 = os.path.join(root_path, "images", "Test_Small_2.png")
+    TEST_5_1 = os.path.join(root_path, "images", "5_1.png")
 
 def load_image(Difficulty):
     """
@@ -34,6 +35,14 @@ def load_image(Difficulty):
     """
     print("Loading Image with difficulty : ", Difficulty.name)
     original_image = np.array(cv.imread(Difficulty.value))
+    print("Image dimension : ", original_image.shape)
+
+    new_image, binary_image, color_matrix = aggregate_colors(original_image)
+
+    return original_image, new_image, binary_image, color_matrix
+
+def second_load_image(image):
+    original_image = image
     print("Image dimension : ", original_image.shape)
 
     new_image, binary_image, color_matrix = aggregate_colors(original_image)

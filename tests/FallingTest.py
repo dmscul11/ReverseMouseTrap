@@ -7,4 +7,4 @@ obj_detector.scan_image()
 
 clustered = obj_detector.get_objects()
 
-print(check_stability(obj_detector, 1))
+print(check_instability(obj_detector, 1))

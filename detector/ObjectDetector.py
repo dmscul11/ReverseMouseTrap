@@ -29,12 +29,32 @@ class ObjectDetector:
                 if self.color_matrix[row][pix] != "w":
                     self.check_adjacent_area(row, pix)
 
+        sorted_objects = {}
+        id_count = 0
+
+        for idx in range(1, len(self.objects)):
+            self.objects[idx].object_post_processing()
+            if self.objects[idx].size > 100:
+                print(self.objects[idx].get_color(), " ", self.objects[idx].get_coordinates())
+
+                new_obj = Object(id_count)
+                new_obj.coordinates = self.objects[idx].get_coordinates()
+                new_obj.set_color(self.objects[idx].get_color())
+
+                sorted_objects[id_count] = new_obj
+                id_count += 1
+
+        self.objects = None
+        self.objects = sorted_objects
+
+        print("Detected ", len(self.objects), " objects")
+
     def check_adjacent_area(self, row, pix):
         connected = False
         lock = False
 
-        for i in range(-1, 2):
-            for j in range(-1, 2):
+        for i in range(-2, 3):
+            for j in range(-2, 3):
                 try:
                     if self.label_plane[row + i][pix + j] != 0.:
                         if self.color_matrix[row + i][pix + j] == self.color_matrix[row][pix]:
@@ -43,9 +63,9 @@ class ObjectDetector:
                             label = self.label_plane[row + i][pix + j]
                             self.label_plane[row][pix] = label
 
-                        if lock is False:
-                            self.objects[label].insert_coordinate(coordinate=(row, pix))
-                            lock = True
+                            if lock is False:
+                                self.objects[label].insert_coordinate(coordinate=(row, pix))
+                                lock = True
                 except:
                     pass
 
@@ -70,6 +90,29 @@ class ObjectDetector:
             self.objects[label] = obj  # Dict
             # Set color
             self.objects[label].set_color(self.color_matrix[row][pix])
+
+    def post_process_objects(self):
+        for idx in range(1, len(self.objects)):
+            self.objects[idx].object_post_processing()
+
+    def drop_small_objects(self):
+        new_objects = {}
+        for idx in range(1, len(self.objects)):
+
+            if self.objects[idx].size < 100:
+                new_objects = self.remove_object(objects=self.objects, key=idx)
+
+        self.objects = None
+        self.objects = new_objects
+        print(self.objects)
+
+        for idx in range(1, len(new_objects)):
+            print(new_objects[idx].size)
+
+    def remove_object(self, objects, key):
+        r = dict(objects)
+        del r[key]
+        return r
 
     def print_label_plane(self):
         for row in self.label_plane:
