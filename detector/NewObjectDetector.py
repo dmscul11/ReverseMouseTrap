@@ -5,8 +5,6 @@ from objects.Object import Object
 from loader.ImageLoader import show_image
 from loader.Operations import reconstruct_image
 from loader.Operations import reconstruct_single_object
-from world.World import World
-
 
 class NewObjectDetector:
     def __init__(self, aggregated_image, binary_image, color_matrix):

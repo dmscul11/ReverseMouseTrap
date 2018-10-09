@@ -37,7 +37,7 @@ def rotate_pivot(obj_detector, image, lever, pivot_center, direction):
             elif p[1] > center_pixel[1] and (p[0] < image.shape[0]) and (p[1] < image.shape[1]):
                 new_lever.append((p[0] + 1, p[1] + 1))
 
-    # remove old pixels then add new ones to image, readd yellow to image
+    # remove old pixels then add new ones to image, read yellow to image
     for p in lever_coords:
         image[p[0], p[1], :] = [255., 255., 255.]
     new_lever = list(set(new_lever))

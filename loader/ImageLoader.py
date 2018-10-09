@@ -7,6 +7,8 @@ import cv2 as cv
 
 import matplotlib.pyplot as plt
 
+from objects.Colors import Colors
+
 class Difficulty(Enum):
     root_path = os.path.dirname(__file__)
     EASY = os.path.join(root_path, 'images', 'Easy.png')
@@ -43,9 +45,47 @@ def load_image(Difficulty):
 
 def reload(path):
     original_image = np.array(cv.imread(path))
-    new_image, binary_image, color_matrix = aggregate_colors(original_image)
+    new_image, binary_image, color_matrix = reload_colors(original_image)
 
     return original_image, new_image, binary_image, color_matrix
+
+def reload_colors(image):
+    new_img = np.zeros(shape=image.shape)
+    binary_image = np.zeros(shape=(len(image), len(image[0])))
+
+    # g, b(blue), y, w, d(black)
+    color_matrix = np.zeros(shape=(len(image), len(image[0])), dtype=str)
+    for row in range(len(image)):
+        row_len = len(image[row])
+        for pix in range(row_len):
+            r = image[row][pix][2]
+            g = image[row][pix][1]
+            b = image[row][pix][0]
+
+            c = [b, g, r]
+            if c == Colors.W.value:
+                new_img[row][pix] = Colors.W.value
+                color_matrix[row][pix] = "w"
+                binary_image[row][pix] = np.array(0)
+            elif c == Colors.D.value:
+                new_img[row][pix] = Colors.D.value
+                color_matrix[row][pix] = "d"
+                binary_image[row][pix] = np.array(255)
+            elif c == Colors.Y.value:
+                new_img[row][pix] = Colors.Y.value
+                color_matrix[row][pix] = "y"
+                binary_image[row][pix] = np.array(255)
+            elif c == Colors.B.value:
+                new_img[row][pix] = Colors.G.value
+                color_matrix[row][pix] = "b"
+                binary_image[row][pix] = np.array(255)
+            elif c == Colors.G.value:
+                new_img[row][pix] = Colors.G.value
+                color_matrix[row][pix] = "g"
+                binary_image[row][pix] = np.array(255)
+
+    return new_img, binary_image, color_matrix
+
 
 def aggregate_colors(image):
     """
@@ -76,8 +116,13 @@ def aggregate_colors(image):
 
             # Blue designation
             elif r + 10 < b and g + 10 < b:
-                new_img[row][pix] = np.array([255., 0., 0.])
-                color_matrix[row][pix] = "b"
+                # Yellow designation
+                if g > 200 and r > 200:
+                    new_img[row][pix] = np.array([0., 255., 255.])
+                    color_matrix[row][pix] = "y"
+                else:
+                    new_img[row][pix] = np.array([255., 0., 0.])
+                    color_matrix[row][pix] = "b"
 
             # Green designation
             elif r + 10 < g and b + 10 < g:
@@ -92,7 +137,7 @@ def aggregate_colors(image):
 
             elif g + 10 < r and b + 10 < r:
                 # Yellow designation
-                if g > 100 and r > 100:
+                if g > 200 and r > 200:
                     new_img[row][pix] = np.array([0., 255., 255.])
                     color_matrix[row][pix] = "y"
                 # Red designation convert red to white

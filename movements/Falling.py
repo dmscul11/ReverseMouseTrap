@@ -61,8 +61,7 @@ def check_instability(obj_detector, cluster_id):
         pixel_supported = False
         # checks if current bottom pixel has a different cluster beneath it
         try:
-            if label_plane[pixel[0] + 1][pixel[1]] not in invalid_support or \
-               label_plane[pixel[0] + 2][pixel[1]] not in invalid_support:
+            if label_plane[pixel[0] + 1][pixel[1]] not in invalid_support or label_plane[pixel[0] + 2][pixel[1]] not in invalid_support:
                 pixel_supported = True
         except:
             pixel_supported = True
