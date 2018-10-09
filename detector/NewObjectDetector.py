@@ -7,6 +7,7 @@ from loader.Operations import reconstruct_image
 from loader.Operations import reconstruct_single_object
 from world.World import World
 
+
 class NewObjectDetector:
     def __init__(self, aggregated_image, binary_image, color_matrix):
         self.aggregated_image = aggregated_image

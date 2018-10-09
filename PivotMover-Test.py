@@ -18,8 +18,8 @@ objects = obj_detector.get_objects()
 # get pivot lever 14, (15) and pivot 17
 # move pivot random times
 for i in range(10):
-    new_image, new_lever, new_center = rotate_pivot(obj_detector, new, 4, 5, 'counterclockwise')
+    new_image, new_lever, new_center = rotate_pivot(obj_detector, new, 2, 3, 'counterclockwise')
     new = np.array(new_image)
-    obj_detector.get_objects()[4].coordinates = list(new_lever)
-    obj_detector.get_objects()[5].coordinates = list(new_center)
+    obj_detector.get_objects()[2].coordinates = list(new_lever)
+    obj_detector.get_objects()[3].coordinates = list(new_center)
 show_image(new)
