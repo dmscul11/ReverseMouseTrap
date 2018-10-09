@@ -25,24 +25,36 @@ class World:
 
         self.reasoner = Reasoner()
 
-        self.initial_reconstructed = self.reconstruct_image(self.objects)
-
     def simulate(self):
         """
         Starts the simulation
         :return: Terminated: Bool
         """
 
-        for cluster_id in self.objects.keys():
-            stability = Falling.check_instability(obj_detector=self.object_detector, cluster_id=cluster_id)
-            print(stability)
+        # Classify all objects that has to fall "check stability"
+        # Given the objects that are going to fall, render them "move_object_down"
+        # Continue
 
+        for i in range(10):
+            move_object_down(object=self.objects[1])
+
+        reconstructed = self.reconstruct_image(self.objects)
+        show_image(reconstructed)
 
         """
         OUR LOGIC
         """
 
         self.terminated = True
+
+    def check_stability_of_all_objects(self):
+        unstable_objects = []
+
+        for cluster_id in self.objects.keys():
+            stability = Falling.check_instability(obj_detector=self.object_detector, cluster_id=cluster_id)
+            print(stability)
+
+        return
 
     def get_color_BGR(self, color_string):
         if color_string == "w":
@@ -59,9 +71,6 @@ class World:
 
         if color_string == "g":
             return Colors.G.value
-
-    def get_initial_reconstructed_image(self):
-        return self.initial_reconstructed
 
     def update_render(self):
         """

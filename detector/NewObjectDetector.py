@@ -15,11 +15,12 @@ class NewObjectDetector:
 
         self.objects_array = []
         self.objects = {}
+        self.objects_by_color = {}
 
         self.row_len = len(self.aggregated_image)
         self.col_len = len(self.aggregated_image[0])
 
-        self.color_list = ["d", "b", "y", "g"]
+        self.color_list = ["d", "b", "g", "y"]
 
         self.label_plane = np.full(shape=(self.row_len, self.col_len), fill_value=0)
 
@@ -27,6 +28,14 @@ class NewObjectDetector:
         self.color_segregated, self.segregated_binary = self.segregate_by_color()
         self.drop_small_objects()
         self.find_connected_components()
+
+        print("Identified ", len(self.objects_array), "objects")
+        """
+        print("Blue : ", len(self.objects_by_color["b"]))
+        print("Black : ", len(self.objects_by_color["d"]))
+        print("Yellow : ", len(self.objects_by_color["y"]))
+        print("Green : ", len(self.objects_by_color["g"]))
+        """
 
     def segregate_by_color(self):
         segregated = {}
@@ -87,8 +96,10 @@ class NewObjectDetector:
             obj = Object(self.label_counter)
             obj.coordinates = tmp_array
             obj.set_color(color)
+
             self.objects[self.label_counter] = obj
             self.objects_array.append(obj)
+
             self.label_counter += 1
 
     def drop_small_objects(self):
