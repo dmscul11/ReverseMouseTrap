@@ -7,7 +7,7 @@ import numpy as np
 
 
 # read in image
-original, new, binary, color_matrix = load_image(Difficulty.EASY)
+original, new, binary, color_matrix = load_image(Difficulty.TEST)
 print(np.unique(color_matrix.astype('U13')))
 
 # detect objects
@@ -17,11 +17,11 @@ objects = obj_detector.get_objects()
 
 # get pivot lever 14, (15) and pivot 17
 # move pivot random times
-for i in range(10):
-    new_image, new_lever, new_center = rotate_pivot(obj_detector, new, 14, 17, 'counterclockwise')
+for i in range(30):
+    new_image, new_lever, new_center = rotate_pivot(obj_detector, new, 3, 2, 'counterclockwise')
     new = np.array(new_image)
-    obj_detector.get_objects()[14].coordinates = list(new_lever)
-    obj_detector.get_objects()[17].coordinates = list(new_center)
+    obj_detector.get_objects()[3].coordinates = list(new_lever)
+    obj_detector.get_objects()[2].coordinates = list(new_center)
 show_image(new)
 
 
