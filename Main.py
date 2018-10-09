@@ -2,7 +2,7 @@ import os
 
 from loader.ImageLoader import *
 from detector.ObjectDetector import ObjectDetector
-from detector.NewObjectDetector import NewObjectDetector
+from detector.NewObjectDetector import *
 from movements.Pivoting import *
 from movements.StringMover import *
 from world.World import World
@@ -18,7 +18,7 @@ def create_movie(image_name, frame_width, frame_height):
         pass
 
     movie_name = os.path.join(movie_output_path, image_name + ".avi")
-    vid = cv.VideoWriter(movie_name, -1, 1, (frame_width, frame_height))
+    vid = cv.VideoWriter(movie_name, -1, 30, (frame_width, frame_height))
 
     img_path = os.path.join(os.path.dirname(__file__), "world", "render_files")
     file_list = sorted(os.listdir(img_path))
@@ -26,13 +26,12 @@ def create_movie(image_name, frame_width, frame_height):
     for f in file_list:
         img = cv.imread(os.path.join(img_path, f))
         vid.write(img)
-        print(f)
 
     cv.destroyAllWindows()
     vid.release()
 
 if __name__ == "__main__":
-    img_difficulty = Difficulty.TEST_5_1
+    img_difficulty = Difficulty.TEST_SMALL
     original, new, binary, color_matrix = load_image(img_difficulty)
 
     detector = NewObjectDetector(new, binary, color_matrix)

@@ -1,7 +1,11 @@
 from world.Reasoner import Reasoner
 from movements.Movements import *
-from loader.ImageLoader import show_image
 from objects.Colors import Colors
+
+from detector.NewObjectDetector import *
+
+from movements.Falling import *
+from movements.Pivoting import *
 
 import cv2 as cv
 
@@ -37,34 +41,61 @@ class World:
         # Given the objects that are going to fall, render them "move_object_down"
         # Continue
 
-        self.simulate_falling()
-        self.detect_contact()
-
+        unstable = self.simulate_falling()
         reconstructed_image = self.reconstruct_image(self.objects)
 
-        """
-        OUR LOGIC
-        """
+        neighbors = self.detect_contact(unstable)
+        self.contact_interaction(neighbors)
 
         self.update_render(self.steps, reconstructed_image)
+
+        self.reload_image(step=self.steps)
+
         print("Step : ", self.steps)
         self.steps += 1
-        if self.steps == 200:
+        if len(unstable) == 0:
             self.terminated = True
 
     def simulate_falling(self):
         unstable_objects, unstable_centeroids = self.reasoner.check_stability_of_all_objects(self.object_detector,
                                                                                              self.objects)
-        # print("Unstable Objects: ", unstable_objects)
-        # print("Unstable Centeroids: ", unstable_centeroids)
+        print("Unstable Objects: ", unstable_objects)
+        print("Unstable Centeroids: ", unstable_centeroids)
 
+        self.move_unstable_objects_down(unstable_objects)
+        return unstable_objects
+
+    def move_unstable_objects_down(self, unstable_objects):
         for unstable_id in unstable_objects:
             move_object_down(self.objects[unstable_id])
 
-    def detect_contact(self):
-        new_object_detector, affected_neighbors = self.reasoner.check_free_movement(self.object_detector, self.objects)
-        print(new_object_detector)
-        print(affected_neighbors)
+    def detect_contact(self, unstable):
+        neighbors = {}
+        for obj_id in unstable:
+            neighbor = get_neighbors(self.object_detector, obj_id)
+            if len(neighbor) > 1:
+                neighbors[obj_id] = neighbor[1:]
+
+        print(neighbors)
+        return neighbors
+
+    def contact_interaction(self, neighbors):
+        for key in neighbors.keys():
+            # new_image, new_coord, new_center = rotate_pivot(self.object_detector, self.aggregated_image, neighbors[key][0], key, 'counterclockwise')
+            new_image, new_coord, new_center = rotate_pivot(self.object_detector, self.aggregated_image,
+                                                            2, 3, 'counterclockwise')
+            self.objects[neighbors[key][0]].coordinates = new_coord
+
+    def reload_image(self, step):
+        # reload previous image
+        dir_path = os.path.join(os.path.dirname(__file__), "render_files")
+        path = os.path.join(dir_path, str(step).zfill(5) + ".png")
+        self.original_image, self.aggregated_image, self.binary_image, self.color_matrix = reload(path)
+
+        det = NewObjectDetector(self.original_image, self.binary_image, self.color_matrix)
+        det.scan_image()
+
+        self.objects = det.get_objects()
 
     def get_color_BGR(self, color_string):
         if color_string == "w":

@@ -11,6 +11,8 @@ class Object:
 
         # An object with collision_lock set to True cannot move further
         self.collision_lock = False
+        self.unstable = False
+        self.pivoted = False
 
     def object_post_processing(self):
         self.size = len(self.coordinates)

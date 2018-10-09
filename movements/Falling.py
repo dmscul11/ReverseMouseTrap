@@ -136,7 +136,7 @@ def free_movement(obj_detector, cluster_id):
     # or it is in free fall
     if instability == -1:
         for pixel in new_obj_detector.get_objects()[cluster_id].coordinates:
-            new_coordinates.append(tuple((pixel[0] + 10, pixel[1])))
+            new_coordinates.append(tuple((pixel[0] + 1, pixel[1])))
 
     # or it tips
     else:
