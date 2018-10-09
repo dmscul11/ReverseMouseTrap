@@ -26,7 +26,7 @@ class NewObjectDetector:
 
     def scan_image(self):
         self.color_segregated, self.segregated_binary = self.segregate_by_color()
-        self.drop_small_objects()
+        # self.drop_small_objects()
         self.find_connected_components()
 
         print("Identified ", len(self.objects_array), "objects")
@@ -91,7 +91,7 @@ class NewObjectDetector:
                 for pix in range(len(labels[0])):
                     if labels[row][pix] == l:
                         tmp_array.append((row, pix))
-                        self.label_plane[row][pix] = l
+                        self.label_plane[row][pix] = self.label_counter
 
             obj = Object(self.label_counter)
             obj.coordinates = tmp_array
