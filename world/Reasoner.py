@@ -10,10 +10,9 @@ class Reasoner:
 
         for cluster_id in objects.keys():
             stability = check_instability(obj_detector=object_detector, cluster_id=cluster_id)
-            print(stability)
             if stability == False: # Stable
                 pass
-            elif stability == True: # Unstable
+            elif stability == -1: # Unstable
                 unstable_objects.append(cluster_id)
             elif stability == -1:
                 pass

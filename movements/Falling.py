@@ -44,14 +44,12 @@ def check_instability(obj_detector, cluster_id):
     # Given obj_detector and the cluster ID desired, returns True if object will fall. If it will not fall, it returns
     # point about which the object should pivot or '0' denoting free fall
 
-    if obj_detector.get_objects()[cluster_id].color == "d":
+    if obj_detector.get_objects()[cluster_id].get_color() == "d":
          return False
 
     label_plane = obj_detector.get_label_plane()
     centroid = get_centroid(obj_detector, cluster_id)
     base = get_base(obj_detector, cluster_id)
-
-    print(base)
 
     invalid_support = [0, cluster_id]
     left_supported = False
