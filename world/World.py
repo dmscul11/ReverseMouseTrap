@@ -91,8 +91,24 @@ class World:
             if self.objects[neighbor_id].pivoted is True:
                 new_image, new_coord, new_center = rotate_pivot(self.object_detector, self.aggregated_image,
                                                                 neighbor_id, self.objects[neighbor_id].pivoted_by, 'counterclockwise')
-
                 self.objects[neighbor_id].coordinates = new_coord
+
+            elif self.objects[neighbor_id].color == 'g':
+                string_coords = self.objects[neighbor_id].coordinates
+                if not self.objects[neighbor_id].front_end:
+                    edges, front_end, back_end = get_string_ends(string_coords, self.color_matrix)
+                    width = get_string_width(edges)
+                else:
+                    front_end = self.objects[neighbor_id].front_end
+                    back_end = self.objects[neighbor_id].back_end
+                    width = self.objects[neighbor_id].width
+                self.aggregated_image, new_string, new_front_end, new_back_end = pull_string(self.aggregated_image,
+                                                            string_coords, 'front', front_end, 'up', back_end, width)
+
+                self.objects[neighbor_id].coordinates = list(new_string)
+                self.objects[neighbor_id].front_end = list(new_front_end)
+                self.objects[neighbor_id].back_end = list(new_back_end)
+                self.objects[neighbor_id].width = width
 
     def reload_image(self, step):
         if step != 0:

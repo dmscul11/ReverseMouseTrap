@@ -15,6 +15,9 @@ class Object:
         self.pivoted = False
         self.pivoted_by = 0
         self.string_attached = False
+        self.front_end = []
+        self.back_end = []
+        self.width = 0
 
     def object_post_processing(self):
         self.size = len(self.coordinates)
