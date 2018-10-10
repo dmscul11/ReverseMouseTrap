@@ -40,10 +40,29 @@ class World:
         """
         print("Step : ", self.steps)
 
-        unstable = self.simulate_falling()
+        # part 1 test
+        unstable = 1
+        all_neighbors = {}
+        all_neighbors[1] = range(1, len(self.objects) + 1)
+        print(all_neighbors)
+        while unstable:
+            unstable = self.simulate_falling()
+            reconstructed_image = self.reconstruct_image(self.objects)
+            self.update_render(self.steps, reconstructed_image)
+            self.reload_image(step=self.steps)
+            self.steps += 1
 
-        neighbors = self.detect_contact(unstable)
-        self.contact_interaction(neighbors)
+        # part 1 test
+        for i in range(10):
+            print("Move all : ", str(i))
+            self.contact_interaction(all_neighbors)
+            reconstructed_image = self.reconstruct_image(self.objects)
+            self.update_render(self.steps, reconstructed_image)
+            self.reload_image(step=self.steps)
+            self.steps += 1
+
+        # neighbors = self.detect_contact(unstable)
+        # self.contact_interaction(neighbors)
 
         try:
             reconstructed_image = self.reconstruct_image(self.objects)
@@ -52,6 +71,9 @@ class World:
         except:
             # Bound reached exception. Leave this for now.
             self.terminated = True
+
+        # part 1 test
+        self.terminated = True
 
         self.steps += 1
         if len(unstable) == 0:
