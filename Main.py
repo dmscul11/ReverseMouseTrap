@@ -32,13 +32,20 @@ def create_movie(image_name, frame_width, frame_height):
     vid.release()
 
 if __name__ == "__main__":
-    img_difficulty = Difficulty.TEST_5_1
+    img_difficulty = Difficulty.MEDIUM
     original, new, binary, color_matrix = load_image(img_difficulty)
 
     detector = NewObjectDetector(new, binary, color_matrix)
     detector.scan_image()
 
     objects = detector.get_objects()
+
+    # part 1 test
+    for k, v in list(objects.items()):
+        if len(v.coordinates) < 50:
+            del objects[k]
+    print(len(objects))
+
     detect_pivot(detector)
     # detector.print_label_plane()
 
@@ -50,5 +57,4 @@ if __name__ == "__main__":
 
     # Make a video
     create_movie(img_difficulty.name, len(original[0]), len(original))
-
 
