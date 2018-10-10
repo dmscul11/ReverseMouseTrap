@@ -13,6 +13,8 @@ class Object:
         self.collision_lock = False
         self.unstable = False
         self.pivoted = False
+        self.pivoted_by = 0
+        self.string_attached = False
 
     def object_post_processing(self):
         self.size = len(self.coordinates)

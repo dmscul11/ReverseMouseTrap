@@ -5,6 +5,7 @@ from detector.ObjectDetector import ObjectDetector
 from detector.NewObjectDetector import NewObjectDetector
 from movements.Pivoting import *
 from movements.StringMover import *
+from detector.PivotDetector import detect_pivot
 from world.World import World
 import cv2 as cv
 import sys
@@ -31,13 +32,14 @@ def create_movie(image_name, frame_width, frame_height):
     vid.release()
 
 if __name__ == "__main__":
-    img_difficulty = Difficulty.EASY
+    img_difficulty = Difficulty.TEST_5_1
     original, new, binary, color_matrix = load_image(img_difficulty)
 
     detector = NewObjectDetector(new, binary, color_matrix)
     detector.scan_image()
 
     objects = detector.get_objects()
+    detect_pivot(detector)
     # detector.print_label_plane()
 
     world = World(objects=objects, original_image=original, aggregated_image=new, binary_image=binary,

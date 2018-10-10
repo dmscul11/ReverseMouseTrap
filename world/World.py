@@ -17,6 +17,7 @@ class World:
     def __init__(self, objects, original_image, aggregated_image, binary_image, color_matrix, object_detector):
         self.terminated = False
         self.steps = 0
+        self.stability_count = 0
 
         self.world_row = len(original_image)
         self.world_col = len(original_image[0])
@@ -36,10 +37,7 @@ class World:
         Starts the simulation
         :return: Terminated: Bool
         """
-
-        # Classify all objects that has to fall. "check stability"
-        # Given the objects that are going to fall, render them "move_object_down"
-        # Continue
+        print("Step : ", self.steps)
 
         unstable = self.simulate_falling()
 
@@ -51,11 +49,16 @@ class World:
             self.update_render(self.steps, reconstructed_image)
             self.reload_image(step=self.steps)
         except:
+            # Bound reached exception. Leave this for now.
             self.terminated = True
 
-        print("Step : ", self.steps)
         self.steps += 1
         if len(unstable) == 0:
+            self.stability_count += 1
+        else:
+            self.stability_count = 0
+
+        if self.stability_count == 3:
             self.terminated = True
 
     def simulate_falling(self):
@@ -83,10 +86,13 @@ class World:
 
     def contact_interaction(self, neighbors):
         for key in neighbors.keys():
-            new_image, new_coord, new_center = rotate_pivot(self.object_detector, self.aggregated_image,
-                                                            neighbors[key][0], key + 1, 'counterclockwise')
+            # key == id of the ball
+            neighbor_id = neighbors[key][0]
+            if self.objects[neighbor_id].pivoted is True:
+                new_image, new_coord, new_center = rotate_pivot(self.object_detector, self.aggregated_image,
+                                                                neighbor_id, self.objects[neighbor_id].pivoted_by, 'counterclockwise')
 
-            self.objects[neighbors[key][0]].coordinates = new_coord
+                self.objects[neighbor_id].coordinates = new_coord
 
     def reload_image(self, step):
         if step != 0:
@@ -95,13 +101,11 @@ class World:
             path = os.path.join(dir_path, str(step).zfill(5) + ".png")
             self.original_image, self.aggregated_image, self.binary_image, self.color_matrix = reload(path)
 
+            # Run detector, but update its object externally
             det = NewObjectDetector(self.original_image, self.binary_image, self.color_matrix)
             det.scan_image()
             det.objects = self.objects
             self.object_detector = det
-
-            # self.objects = det.get_objects()
-
 
     def get_color_BGR(self, color_string):
         if color_string == "w":
