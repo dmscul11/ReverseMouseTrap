@@ -47,8 +47,13 @@ class NewObjectDetector:
             for row in range(self.row_len):
                 for pix in range(self.col_len):
                     if self.color_matrix[row][pix] == color:
+                        #print(color, end=" ")
                         tmp_cordinates.append((row, pix))
                         tmp_binary[row][pix] = 255
+                    else:
+                        pass
+                        #print(" ", end=" ")
+                #print()
 
             segregated[color] = tmp_cordinates
             segregated_binary[color] = tmp_binary
@@ -68,7 +73,7 @@ class NewObjectDetector:
     def cv_find(self, image, color):
         ret, thresh = cv.threshold(image, 0, 255, cv.THRESH_BINARY + cv.THRESH_OTSU)
         # You need to choose 4 or 8 for connectivity type
-        connectivity = 4
+        connectivity = 8
         # Perform the operation
         output = cv.connectedComponentsWithStats(thresh, connectivity, cv.CV_32S)
         # Get the results
