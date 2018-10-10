@@ -14,6 +14,7 @@ class Difficulty(Enum):
     EASY = os.path.join(root_path, 'images', 'Easy.png')
     MEDIUM = os.path.join(root_path, "images", "Medium.png")
     HARD = os.path.join(root_path, "images", "Hard.png")
+    HARD_REV = os.path.join(root_path, "images", "Hard_Rev.png")
     TEST = os.path.join(root_path, "images", "Test.png")
     TEST_SMALL = os.path.join(root_path, "images", "Test_Small.png")
     TEST_SMALL_2 = os.path.join(root_path, "images", "Test_Small_2.png")
@@ -117,7 +118,7 @@ def aggregate_colors(image):
             # Blue designation
             elif r + 10 < b and g + 10 < b:
                 # Yellow designation
-                if g > 200 and r > 200:
+                if g > 240 and r > 240:
                     new_img[row][pix] = np.array([0., 255., 255.])
                     color_matrix[row][pix] = "y"
                 else:
@@ -127,7 +128,7 @@ def aggregate_colors(image):
             # Green designation
             elif r + 10 < g and b + 10 < g:
                 # Yellow
-                if g > 200 and r > 200:
+                if g > 240 and r > 240:
                     new_img[row][pix] = np.array([0., 255., 255.])
                     color_matrix[row][pix] = "y"
                 # Green
@@ -137,7 +138,7 @@ def aggregate_colors(image):
 
             elif g + 10 < r and b + 10 < r:
                 # Yellow designation
-                if g > 200 and r > 200:
+                if g > 240 and r > 240:
                     new_img[row][pix] = np.array([0., 255., 255.])
                     color_matrix[row][pix] = "y"
                 # Red designation convert red to white
