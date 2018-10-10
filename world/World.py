@@ -4,6 +4,7 @@ from objects.Colors import Colors
 
 from movements.Falling import *
 from movements.Pivoting import *
+from movements.StringMover import *
 
 from detector.NewObjectDetector import NewObjectDetector
 
