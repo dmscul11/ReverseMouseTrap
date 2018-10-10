@@ -41,10 +41,10 @@ if __name__ == "__main__":
     objects = detector.get_objects()
 
     # part 1 test
-    for k, v in list(objects.items()):
-        if len(v.coordinates) < 50:
-            del objects[k]
-    print(len(objects))
+    #for k, v in list(objects.items()):
+    #    if len(v.coordinates) < 50:
+    #        del objects[k]
+    # print(len(objects))
 
     detect_pivot(detector)
     # detector.print_label_plane()
