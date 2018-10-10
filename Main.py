@@ -32,7 +32,7 @@ def create_movie(image_name, frame_width, frame_height):
     vid.release()
 
 if __name__ == "__main__":
-    img_difficulty = Difficulty.HARD_REV
+    img_difficulty = Difficulty.EASY
     original, new, binary, color_matrix = load_image(img_difficulty)
 
     detector = NewObjectDetector(new, binary, color_matrix)
@@ -40,7 +40,6 @@ if __name__ == "__main__":
 
     objects = detector.get_objects()
     detect_pivot(detector)
-    # detector.print_label_plane()
 
     world = World(objects=objects, original_image=original, aggregated_image=new, binary_image=binary,
                   color_matrix=color_matrix, object_detector=detector)
