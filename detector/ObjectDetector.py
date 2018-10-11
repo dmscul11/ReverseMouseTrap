@@ -1,113 +1,103 @@
-import cv2 as cv
 import numpy as np
-import time
-
+import cv2 as cv
 from objects.Object import Object
-from objects.Colors import Colors
 
 class ObjectDetector:
-    labels = [1]
-    objects = {}
-
-    number_of_labels = 0
-
-    def __init__(self, image, binary_image, color_matrix):
-        self.image = image
+    def __init__(self, aggregated_image, binary_image, color_matrix):
+        self.aggregated_image = aggregated_image
         self.binary_image = binary_image
         self.color_matrix = color_matrix
 
-        self.label_plane = np.zeros(shape=(len(self.image), len(self.image[0])))
+        self.objects_array = []
+        self.objects = {}
+        self.objects_by_color = {}
+
+        self.row_len = len(self.aggregated_image)
+        self.col_len = len(self.aggregated_image[0])
+
+        self.color_list = ["d", "b", "g", "y"]
+
+        self.label_plane = np.full(shape=(self.row_len, self.col_len), fill_value=0)
 
     def scan_image(self):
-        self.label_plane = np.zeros(shape=(len(self.image), len(self.image[0])))
+        self.color_segregated, self.segregated_binary = self.segregate_by_color()
+        # self.drop_small_objects()
+        self.find_connected_components()
 
-        for row in range(len(self.image)):
-            row_len = len(self.image[row])
+        print("Identified ", len(self.objects_array), "objects")
 
-            for pix in range(row_len):
-                # if pixel not white
-                if self.color_matrix[row][pix] != "w":
-                    self.check_adjacent_area(row, pix)
+    def segregate_by_color(self):
+        segregated = {}
+        segregated_binary = {}
 
-        sorted_objects = {}
-        id_count = 0
+        for color in self.color_list:
+            tmp_cordinates = []
+            tmp_binary = np.full(shape=(self.row_len, self.col_len), fill_value=0)
 
-        for idx in range(1, len(self.objects)):
-            self.objects[idx].object_post_processing()
-            if self.objects[idx].size > 100:
-                print(self.objects[idx].get_color(), " ", self.objects[idx].get_coordinates())
+            for row in range(self.row_len):
+                for pix in range(self.col_len):
+                    if self.color_matrix[row][pix] == color:
+                        #print(color, end=" ")
+                        tmp_cordinates.append((row, pix))
+                        tmp_binary[row][pix] = 255
+                    else:
+                        pass
+                        #print(" ", end=" ")
+                #print()
 
-                new_obj = Object(id_count)
-                new_obj.coordinates = self.objects[idx].get_coordinates()
-                new_obj.set_color(self.objects[idx].get_color())
+            segregated[color] = tmp_cordinates
+            segregated_binary[color] = tmp_binary
 
-                sorted_objects[id_count] = new_obj
-                id_count += 1
+        return segregated, segregated_binary # dict
 
-        self.objects = None
-        self.objects = sorted_objects
+    def find_connected_components(self):
+        self.label_counter = 1
 
-        print("Detected ", len(self.objects), " objects")
+        for color in self.color_list:
+            binary = self.segregated_binary[color]
+            cv.imwrite("./tmp_" + color + ".PNG", binary)
+            image = cv.imread("./tmp_" + color + ".PNG", cv.CV_8UC1)
+            self.cv_find(image, color)
 
-    def check_adjacent_area(self, row, pix):
-        connected = False
-        lock = False
+    def cv_find(self, image, color):
+        ret, thresh = cv.threshold(image, 0, 255, cv.THRESH_BINARY + cv.THRESH_OTSU)
+        # You need to choose 4 or 8 for connectivity type
+        connectivity = 8
+        # Perform the operation
+        output = cv.connectedComponentsWithStats(thresh, connectivity, cv.CV_32S)
+        # Get the results
+        # The first cell is the number of labels
+        num_labels = output[0]
+        # The second cell is the label matrix
+        labels = output[1]
+        # The third cell is the stat matrix
+        stats = output[2]
+        # The fourth cell is the centroid matrix
+        centroids = output[3]
 
-        for i in range(-2, 3):
-            for j in range(-2, 3):
-                try:
-                    if self.label_plane[row + i][pix + j] != 0.:
-                        if self.color_matrix[row + i][pix + j] == self.color_matrix[row][pix]:
-                            connected = True
+        self.gather_coordinates(labels, num_labels, color)
 
-                            label = self.label_plane[row + i][pix + j]
-                            self.label_plane[row][pix] = label
+    def gather_coordinates(self, labels, num_labels, color):
+        for l in range(1, num_labels):
+            tmp_array = []
+            for row in range(len(labels)):
+                for pix in range(len(labels[0])):
+                    if labels[row][pix] == l:
+                        tmp_array.append((row, pix))
+                        self.label_plane[row][pix] = self.label_counter
 
-                            if lock is False:
-                                self.objects[label].insert_coordinate(coordinate=(row, pix))
-                                lock = True
-                except:
-                    pass
+            obj = Object(self.label_counter)
+            obj.coordinates = tmp_array
+            obj.set_color(color)
 
+            self.objects[self.label_counter] = obj
+            self.objects_array.append(obj)
 
-        # Encountering of a new object
-        if connected is False:
-            self.number_of_labels += 1
-            # Very first object
-            if len(self.labels) == 1:
-                label = 1
-                self.labels.append(label)
-            else:
-                label = self.labels[len(self.labels) - 1] + 1
-                self.labels.append(label)
-
-            self.label_plane[row][pix] = label
-
-            # Create an object // Object id >> label
-            obj = Object(label)
-            # Insert initial coordinate
-            obj.insert_coordinate(coordinate=(row, pix))
-            self.objects[label] = obj  # Dict
-            # Set color
-            self.objects[label].set_color(self.color_matrix[row][pix])
-
-    def post_process_objects(self):
-        for idx in range(1, len(self.objects)):
-            self.objects[idx].object_post_processing()
+            self.label_counter += 1
 
     def drop_small_objects(self):
-        new_objects = {}
-        for idx in range(1, len(self.objects)):
-
-            if self.objects[idx].size < 100:
-                new_objects = self.remove_object(objects=self.objects, key=idx)
-
-        self.objects = None
-        self.objects = new_objects
-        print(self.objects)
-
-        for idx in range(1, len(new_objects)):
-            print(new_objects[idx].size)
+        print(self.color_segregated)
+        print(self.segregated_binary)
 
     def remove_object(self, objects, key):
         r = dict(objects)
@@ -121,13 +111,10 @@ class ObjectDetector:
             print()
 
     def get_objects(self):
-        object_list = []
         return self.objects
 
-    def get_stats(self):
-        return self.number_of_labels
+    def get_objects_array(self):
+        return self.objects_array
 
     def get_label_plane(self):
         return self.label_plane
-
-

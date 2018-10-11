@@ -1,12 +1,8 @@
 import os
-# import path
 from enum import Enum
 
 import numpy as np
 import cv2 as cv
-
-import matplotlib.pyplot as plt
-
 from objects.Colors import Colors
 
 class Difficulty(Enum):

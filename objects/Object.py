@@ -1,10 +1,14 @@
+from threading import Thread
 class Object:
     def __init__(self, object_id):
         self.object_id = object_id
 
         # Coordinates of all pixels an object currently occupying
         self.coordinates = []
-        self.boudaries = []
+        self.boundaries = []
+        self.internal_neighbors = []
+        self.external_neighbors = []
+        self.centeroid = (0, 0)
 
         # by default
         self.color = "w"
@@ -13,8 +17,9 @@ class Object:
         self.collision_lock = False
         self.unstable = False
         self.pivoted = False
-        self.pivoted_by = 0
         self.string_attached = False
+
+        self.pivoted_by = 0
         self.front_end = []
         self.back_end = []
         self.width = 0

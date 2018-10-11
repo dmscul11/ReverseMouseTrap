@@ -6,7 +6,7 @@ from movements.Falling import *
 from movements.Pivoting import *
 from movements.StringMover import *
 
-from detector.NewObjectDetector import NewObjectDetector
+from detector.ObjectDetector import ObjectDetector
 
 import cv2 as cv
 

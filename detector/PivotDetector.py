@@ -1,11 +1,12 @@
-from detector.NewObjectDetector import NewObjectDetector
+from detector.ObjectDetector import ObjectDetector
 from loader.ImageLoader import *
 from movements.Falling import get_neighbors
 
-def detect_pivot(object_detector: NewObjectDetector):
+def detect_pivot(object_detector):
     objects = object_detector.get_objects()
 
     for obj in objects.values():
+        print(obj)
         # Look for yellow
         if obj.get_color() is "b":
             id = obj.object_id

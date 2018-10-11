@@ -1,11 +1,11 @@
 import os
 
-from loader.ImageLoader import *
-from detector.ObjectDetector import ObjectDetector
-from detector.NewObjectDetector import NewObjectDetector
+from detector.ObjectDetector import *
+from detector.Detectors import *
 from movements.Pivoting import *
-from movements.StringMover import *
 from detector.PivotDetector import detect_pivot
+
+from objects.Updater import update_objects
 from world.World import World
 import cv2 as cv
 import sys
@@ -32,29 +32,34 @@ def create_movie(image_name, frame_width, frame_height):
     vid.release()
 
 if __name__ == "__main__":
-    img_difficulty = Difficulty.HARD_REV
+    img_difficulty = Difficulty.MEDIUM
     original, new, binary, color_matrix = load_image(img_difficulty)
 
-    detector = NewObjectDetector(new, binary, color_matrix)
+    detector = ObjectDetector(new, binary, color_matrix)
     detector.scan_image()
 
-    objects = detector.get_objects()
+    objects = detector.get_objects_array()
+    objects_dict = detector.get_objects()
 
-    # part 1 test
-    #for k, v in list(objects.items()):
-    #    if len(v.coordinates) < 50:
-    #        del objects[k]
-    # print(len(objects))
+    label_plane = detector.get_label_plane()
 
-    detect_pivot(detector)
+    update_objects(objects, label_plane)
+
+    for object in objects_dict.values():
+        print("Internal Neighbor : ", object.internal_neighbors)
+        print("External Neighbor : ", object.external_neighbors)
+
+    # detect_pivot(detector)
     # detector.print_label_plane()
 
+    """
     world = World(objects=objects, original_image=original, aggregated_image=new, binary_image=binary,
                   color_matrix=color_matrix, object_detector=detector)
 
     while world.terminated is not True:
         world.simulate()
+    """
 
     # Make a video
-    create_movie(img_difficulty.name, len(original[0]), len(original))
+    # create_movie(img_difficulty.name, len(original[0]), len(original))
 
