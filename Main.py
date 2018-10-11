@@ -39,15 +39,7 @@ if __name__ == "__main__":
     detector.scan_image()
 
     objects = detector.get_objects()
-
-    # part 1 test
-    #for k, v in list(objects.items()):
-    #    if len(v.coordinates) < 50:
-    #        del objects[k]
-    # print(len(objects))
-
     detect_pivot(detector)
-    # detector.print_label_plane()
 
     world = World(objects=objects, original_image=original, aggregated_image=new, binary_image=binary,
                   color_matrix=color_matrix, object_detector=detector)
@@ -57,4 +49,5 @@ if __name__ == "__main__":
 
     # Make a video
     create_movie(img_difficulty.name, len(original[0]), len(original))
+
 
