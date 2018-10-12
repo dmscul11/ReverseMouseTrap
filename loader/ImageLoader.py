@@ -9,6 +9,7 @@ class Difficulty(Enum):
     root_path = os.path.dirname(__file__)
     EASY = os.path.join(root_path, 'images', 'Easy.png')
     MEDIUM = os.path.join(root_path, "images", "Medium.png")
+    MEDIUM_FAST = os.path.join(root_path, "images", "Medium_Fast.png")
     HARD = os.path.join(root_path, "images", "Hard.png")
     HARD_REV = os.path.join(root_path, "images", "Hard_Rev.png")
     TEST = os.path.join(root_path, "images", "Test.png")

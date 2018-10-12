@@ -21,7 +21,6 @@ class ObjectDetector:
 
     def scan_image(self):
         self.color_segregated, self.segregated_binary = self.segregate_by_color()
-        # self.drop_small_objects()
         self.find_connected_components()
 
         print("Identified ", len(self.objects_array), "objects")

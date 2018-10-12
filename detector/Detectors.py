@@ -1,7 +1,5 @@
 from objects.Object import Object
-
-def boundary_detector(object, label_plane):
-    pass
+import math
 
 def check_neighborhood(object, label_plane):
     coordinates = object.get_coordinates()
@@ -18,11 +16,11 @@ def check_neighborhood(object, label_plane):
             for n in neighbor:
                 if (n != object_id) and (n != 0) and (n not in external_neighbors):
                     external_neighbors.append(n)
-
+                    object.point_of_impact = coord
+            # Boundary detection
             boundaries.append((coord[0], coord[1]))
         else:
             # This gotta be the internal neighbor
-            # Fo
             for n in neighbor:
                 if n != object_id and (n not in internal_neighbors):
                     internal_neighbors.append(n)
@@ -33,6 +31,38 @@ def check_neighborhood(object, label_plane):
 
     # Internal & External Neighbors are mixed
     return internal_neighbors, external_neighbors
+
+def check_pixel_occupation(object):
+    object.pixel_occupation = len(object.coordinates)
+
+    return True
+
+def check_centeroid(object):
+    if object.pixel_occupation < 2:
+        object.centeroid = object.get_coordinates()[0]
+    else:
+        list_len = len(object.get_coordinates())
+
+        # Simplified method
+        middle = math.floor(list_len / 2)
+        object.centeroid = object.get_coordinates()[middle]
+
+    return True
+
+def detect_pivot(object):
+    from world.World import World
+    # Look for yellow
+    objects = World.get_instance().objects_dict
+    if object.get_color() is "b":
+        id = object.object_id
+        internal_neighbors = object.internal_neighbors
+        for n in internal_neighbors:
+            print(n)
+            if objects[n].color == "y":
+                object.pivoted = True
+                object.pivoted_by = n
+
+    return True
 
 def see_4_label_plane(x, y, label_plane):
     try:
@@ -60,3 +90,4 @@ def see_8_label_plane(x, y, label_plane):
     for row in range(x - 1, x + 2):
         for pix in range(y -1, y + 2):
             pass
+
