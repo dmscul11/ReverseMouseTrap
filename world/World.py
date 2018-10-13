@@ -4,6 +4,7 @@ from objects.Colors import Colors
 
 from movements.Falling import *
 from movements.Pivoting import *
+from movements.StringMover import *
 
 from detector.NewObjectDetector import NewObjectDetector
 
@@ -17,6 +18,7 @@ class World:
     def __init__(self, objects, original_image, aggregated_image, binary_image, color_matrix, object_detector):
         self.terminated = False
         self.steps = 0
+        self.stability_count = 0
 
         self.world_row = len(original_image)
         self.world_col = len(original_image[0])
@@ -36,26 +38,50 @@ class World:
         Starts the simulation
         :return: Terminated: Bool
         """
+        print("Step : ", self.steps)
 
-        # Classify all objects that has to fall. "check stability"
-        # Given the objects that are going to fall, render them "move_object_down"
-        # Continue
+        # part 1 test
+        unstable = 1
+        all_neighbors = {}
+        all_neighbors[1] = range(1, len(self.objects) + 1)
+        print(all_neighbors)
+        while unstable:
+            unstable = self.simulate_falling()
+            reconstructed_image = self.reconstruct_image(self.objects)
+            self.update_render(self.steps, reconstructed_image)
+            self.reload_image(step=self.steps)
+            self.steps += 1
 
-        unstable = self.simulate_falling()
+        # part 1 test
+        for i in range(10):
+            print("Move all : ", str(i))
+            self.contact_interaction(all_neighbors)
+            reconstructed_image = self.reconstruct_image(self.objects)
+            self.update_render(self.steps, reconstructed_image)
+            self.reload_image(step=self.steps)
+            self.steps += 1
 
-        neighbors = self.detect_contact(unstable)
-        self.contact_interaction(neighbors)
+        # neighbors = self.detect_contact(unstable)
+        # self.contact_interaction(neighbors)
 
         try:
             reconstructed_image = self.reconstruct_image(self.objects)
             self.update_render(self.steps, reconstructed_image)
             self.reload_image(step=self.steps)
         except:
+            # Bound reached exception. Leave this for now.
             self.terminated = True
 
-        print("Step : ", self.steps)
+        # part 1 test
+        self.terminated = True
+
         self.steps += 1
         if len(unstable) == 0:
+            self.stability_count += 1
+        else:
+            self.stability_count = 0
+
+        if self.stability_count == 3:
             self.terminated = True
 
     def simulate_falling(self):
@@ -83,10 +109,29 @@ class World:
 
     def contact_interaction(self, neighbors):
         for key in neighbors.keys():
-            new_image, new_coord, new_center = rotate_pivot(self.object_detector, self.aggregated_image,
-                                                            neighbors[key][0], key + 1, 'counterclockwise')
+            # key == id of the ball
+            neighbor_id = neighbors[key][0]
+            if self.objects[neighbor_id].pivoted is True:
+                new_image, new_coord, new_center = rotate_pivot(self.object_detector, self.aggregated_image,
+                                                                neighbor_id, self.objects[neighbor_id].pivoted_by, 'counterclockwise')
+                self.objects[neighbor_id].coordinates = new_coord
 
-            self.objects[neighbors[key][0]].coordinates = new_coord
+            elif self.objects[neighbor_id].color == 'g':
+                string_coords = self.objects[neighbor_id].coordinates
+                if not self.objects[neighbor_id].front_end:
+                    edges, front_end, back_end = get_string_ends(string_coords, self.color_matrix)
+                    width = get_string_width(edges)
+                else:
+                    front_end = self.objects[neighbor_id].front_end
+                    back_end = self.objects[neighbor_id].back_end
+                    width = self.objects[neighbor_id].width
+                self.aggregated_image, new_string, new_front_end, new_back_end = pull_string(self.aggregated_image,
+                                                            string_coords, 'front', front_end, 'up', back_end, width)
+
+                self.objects[neighbor_id].coordinates = list(new_string)
+                self.objects[neighbor_id].front_end = list(new_front_end)
+                self.objects[neighbor_id].back_end = list(new_back_end)
+                self.objects[neighbor_id].width = width
 
     def reload_image(self, step):
         if step != 0:
@@ -95,13 +140,11 @@ class World:
             path = os.path.join(dir_path, str(step).zfill(5) + ".png")
             self.original_image, self.aggregated_image, self.binary_image, self.color_matrix = reload(path)
 
+            # Run detector, but update its object externally
             det = NewObjectDetector(self.original_image, self.binary_image, self.color_matrix)
             det.scan_image()
             det.objects = self.objects
             self.object_detector = det
-
-            # self.objects = det.get_objects()
-
 
     def get_color_BGR(self, color_string):
         if color_string == "w":
