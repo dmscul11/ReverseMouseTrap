@@ -42,6 +42,8 @@ if __name__ == "__main__":
     objects_dict = detector.get_objects()
     label_plane = detector.get_label_plane()
 
+    # detector.print_label_plane()
+
     world = World.get_instance()
     world.create_world(objects=objects, objects_dict=objects_dict, label_plane=label_plane)
 
