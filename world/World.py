@@ -30,7 +30,7 @@ class World:
 
     def create_world(self, objects, objects_dict, label_plane, object_stack):
         self.terminated = False
-        self.steps = 0
+        self.step_count = 0
         self.stability_count = 0
 
         self.world_row = len(label_plane)
@@ -50,12 +50,13 @@ class World:
         Starts the simulation
         :return: Terminated: Bool
         """
-        print("Step : ", self.steps)
+        print("Step : ", self.step_count)
         # self.print_all_objects_properties()
 
         # detect movement for next object
         obj = self.object_stack.pop()
-        move_object(obj)
+        objects_affected = self.move_object(obj)
+        self.object_stack.extend(objects_affected)   # add affected objects
 
         # # Check boundary condition
         # for obj in self.objects:
@@ -81,9 +82,9 @@ class World:
         #     self.terminated = True
 
 
-    def move_object(self, object_to_move):
+    def move_object(self, obj):
 
-        if object_to_move[1] == 'down':
+        if obj[1] == 'down':
             self.move_unstable_objects_down(obj)
 
 
@@ -95,7 +96,7 @@ class World:
 
         self.unstable_objects.clear()
 
-    def get_color_BGR(self, color_string):
+    def get_color_RGB(self, color_string):
         if color_string == "w":
             return Colors.W.value
 
