@@ -1,12 +1,9 @@
-from world.Reasoner import Reasoner
 from movements.Movements import *
 from objects.Colors import Colors
+from world.Reasoner import *
+from objects.Updater import *
 
-from movements.Falling import *
 from movements.Pivoting import *
-from movements.StringMover import *
-
-from detector.NewObjectDetector import NewObjectDetector
 
 import cv2 as cv
 
@@ -15,23 +12,37 @@ import numpy as np
 
 
 class World:
-    def __init__(self, objects, original_image, aggregated_image, binary_image, color_matrix, object_detector):
+    # Half - Singleton. Will not construct itself.
+    # Must not call get_instance before construction.
+    __instance = None
+
+    def __init__(self):
+        if World.__instance != None:
+            raise Exception("World already exists")
+        else:
+            World.__instance = self
+
+    @staticmethod
+    def get_instance():
+        if World.__instance is None:
+            World()
+        return World.__instance
+
+    def create_world(self, objects, objects_dict, label_plane):
         self.terminated = False
         self.steps = 0
         self.stability_count = 0
 
-        self.world_row = len(original_image)
-        self.world_col = len(original_image[0])
+        self.world_row = len(label_plane)
+        self.world_col = len(label_plane[0])
 
         self.objects = objects
-        self.original_image = original_image
-        self.aggregated_image = aggregated_image
-        self.binary_image = binary_image
-        self.color_matrix = color_matrix
+        self.objects_dict = objects_dict
 
-        self.object_detector = object_detector
+        self.label_plane = label_plane
 
-        self.reasoner = Reasoner()
+        self.unstable_objects = []
+        self.maniputated_objects = []
 
     def simulate(self):
         """
@@ -39,44 +50,47 @@ class World:
         :return: Terminated: Bool
         """
         print("Step : ", self.steps)
+        # self.print_all_objects_properties()
 
-        # part 1 test
-        unstable = 1
-        all_neighbors = {}
-        all_neighbors[1] = range(1, len(self.objects) + 1)
-        print(all_neighbors)
-        while unstable:
-            unstable = self.simulate_falling()
-            reconstructed_image = self.reconstruct_image(self.objects)
-            self.update_render(self.steps, reconstructed_image)
-            self.reload_image(step=self.steps)
-            self.steps += 1
+        # Simulating the fall first before checking other conditions
+        for obj in self.objects:
+            fall = will_fall(obj)
+            if fall:
+                self.unstable_objects.append(obj)
 
-        # part 1 test
-        for i in range(10):
-            print("Move all : ", str(i))
-            self.contact_interaction(all_neighbors)
-            reconstructed_image = self.reconstruct_image(self.objects)
-            self.update_render(self.steps, reconstructed_image)
-            self.reload_image(step=self.steps)
-            self.steps += 1
+        if len(self.unstable_objects) != 0:
+            self.move_unstable_objects_down(self.unstable_objects)
 
-        # neighbors = self.detect_contact(unstable)
-        # self.contact_interaction(neighbors)
+        # Check boundary condition
 
-        try:
-            reconstructed_image = self.reconstruct_image(self.objects)
-            self.update_render(self.steps, reconstructed_image)
-            self.reload_image(step=self.steps)
-        except:
-            # Bound reached exception. Leave this for now.
-            self.terminated = True
+        # Tipping
+        tipping_objects = ()
+        for obj in self.objects:
+            tipping_objects = will_tip(obj) # (Bool, direction)
+            # print(obj.centeroid, "  ", obj.point_of_impact)
+            try:
+                if tipping_objects[0]:
+                    # Move it right or left
+                    # Unstable_objects cleared so we can append tuple
+                    self.unstable_objects.append((obj, tipping_objects[1]))
+            except:
+                pass
 
-        # part 1 test
-        self.terminated = True
+        if len(self.unstable_objects) != 0:
+            self.move_tipping_objects(self.unstable_objects)
 
+        # Update objects that are changed
+        update_objects(objects_to_update=self.maniputated_objects, label_plane=self.label_plane)
+
+        # Reconstruct image & Update label_plane
+        reconstructed_image = self.reconstruct_image(self.objects_dict)
+
+        # Render and output image
+        self.update_render(self.steps, reconstructed_image)
+
+        # Check termination condition
         self.steps += 1
-        if len(unstable) == 0:
+        if len(self.unstable_objects) == 0:
             self.stability_count += 1
         else:
             self.stability_count = 0
@@ -84,67 +98,28 @@ class World:
         if self.stability_count == 3:
             self.terminated = True
 
-    def simulate_falling(self):
-        unstable_objects, unstable_centeroids = self.reasoner.check_stability_of_all_objects(self.object_detector,
-                                                                                             self.objects)
-        print("Unstable Objects: ", unstable_objects)
-        print("Unstable Centeroids: ", unstable_centeroids)
-
-        self.move_unstable_objects_down(unstable_objects)
-        return unstable_objects
-
     def move_unstable_objects_down(self, unstable_objects):
-        for unstable_id in unstable_objects:
-            move_object_down(self.objects[unstable_id])
+        self.stability_count = 0 # Reset stability count 0 This operation is need for all object manipulation algorithms
+        for object in unstable_objects:
+            self.maniputated_objects.append(object)
+            move_object_down(object)
 
-    def detect_contact(self, unstable):
-        neighbors = {}
-        for obj_id in unstable:
-            neighbor = get_neighbors(self.object_detector, obj_id)
-            if len(neighbor) > 1:
-                neighbors[obj_id] = neighbor[1:]
+        self.unstable_objects.clear()
 
-        print(neighbors)
-        return neighbors
+    def move_tipping_objects(self, tipping_objects):
+        self.stability_count = 0
+        for object in tipping_objects:
+            self.maniputated_objects.append(object[0])
+            if object[1] == "right":
+                move_object_right(object[0])
+                move_object_right(object[0])
+                move_object_right(object[0])
+            elif object[1] == "left":
+                move_object_left(object[0])
+                move_object_left(object[0])
+                move_object_left(object[0])
 
-    def contact_interaction(self, neighbors):
-        for key in neighbors.keys():
-            # key == id of the ball
-            neighbor_id = neighbors[key][0]
-            if self.objects[neighbor_id].pivoted is True:
-                new_image, new_coord, new_center = rotate_pivot(self.object_detector, self.aggregated_image,
-                                                                neighbor_id, self.objects[neighbor_id].pivoted_by, 'counterclockwise')
-                self.objects[neighbor_id].coordinates = new_coord
-
-            elif self.objects[neighbor_id].color == 'g':
-                string_coords = self.objects[neighbor_id].coordinates
-                if not self.objects[neighbor_id].front_end:
-                    edges, front_end, back_end = get_string_ends(string_coords, self.color_matrix)
-                    width = get_string_width(edges)
-                else:
-                    front_end = self.objects[neighbor_id].front_end
-                    back_end = self.objects[neighbor_id].back_end
-                    width = self.objects[neighbor_id].width
-                self.aggregated_image, new_string, new_front_end, new_back_end = pull_string(self.aggregated_image,
-                                                            string_coords, 'front', front_end, 'up', back_end, width)
-
-                self.objects[neighbor_id].coordinates = list(new_string)
-                self.objects[neighbor_id].front_end = list(new_front_end)
-                self.objects[neighbor_id].back_end = list(new_back_end)
-                self.objects[neighbor_id].width = width
-
-    def reload_image(self, step):
-        if step != 0:
-            # reload previous image
-            dir_path = os.path.join(os.path.dirname(__file__), "render_files")
-            path = os.path.join(dir_path, str(step).zfill(5) + ".png")
-            self.original_image, self.aggregated_image, self.binary_image, self.color_matrix = reload(path)
-
-            # Run detector, but update its object externally
-            det = NewObjectDetector(self.original_image, self.binary_image, self.color_matrix)
-            det.scan_image()
-            det.objects = self.objects
-            self.object_detector = det
+        self.unstable_objects.clear()
 
     def get_color_BGR(self, color_string):
         if color_string == "w":
@@ -164,7 +139,7 @@ class World:
 
     def update_render(self, step, reconstructed_image):
         """
-        Updates state after an iteration
+        Updates state after an iteration outputs the image
         :return:
         """
         dir_path = os.path.join(os.path.dirname(__file__), "render_files")
@@ -176,7 +151,23 @@ class World:
         path = os.path.join(dir_path, str(step).zfill(5) + ".png")
         cv.imwrite(path, reconstructed_image)
 
+    def reload_image(self, step):
+        if step != 0:
+            # reload previous image
+            dir_path = os.path.join(os.path.dirname(__file__), "render_files")
+            path = os.path.join(dir_path, str(step).zfill(5) + ".png")
+            self.original_image, self.aggregated_image, self.binary_image, self.color_matrix = reload(path)
+
+            # Run detector, but update its object externally
+            det = ObjectDetector(self.original_image, self.binary_image, self.color_matrix)
+            det.scan_image()
+
+            World.objects_dict = det.objects
+            World.objects = det.objects_array
+            World.label_plane = det.label_plane
+
     def reconstruct_image(self, objects):
+        self.label_plane = np.zeros(shape=(self.world_row, self.world_col))
         reconstructed_image = np.full(shape=(self.world_row, self.world_col, 3), fill_value=self.get_color_BGR(color_string="w"))
 
         for object_idx in range(1, len(objects) + 1):
@@ -186,6 +177,7 @@ class World:
             for coord in coordinates:
                 # Push color
                 reconstructed_image[coord[0]][coord[1]] = self.get_color_BGR(color)
+                self.label_plane[coord[0]][coord[1]] = objects[object_idx].object_id
 
         return reconstructed_image
 
@@ -204,3 +196,6 @@ class World:
 
         return reconstructed_image
 
+    def print_all_objects_properties(self):
+        for obj in self.objects:
+            obj.print_properties()

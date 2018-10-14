@@ -1,24 +1,22 @@
 import os
-# import path
 from enum import Enum
 
 import numpy as np
 import cv2 as cv
-
-import matplotlib.pyplot as plt
-
 from objects.Colors import Colors
 
 class Difficulty(Enum):
     root_path = os.path.dirname(__file__)
     EASY = os.path.join(root_path, 'images', 'Easy.png')
     MEDIUM = os.path.join(root_path, "images", "Medium.png")
+    MEDIUM_FAST = os.path.join(root_path, "images", "Medium_Fast.png")
     HARD = os.path.join(root_path, "images", "Hard.png")
     HARD_REV = os.path.join(root_path, "images", "Hard_Rev.png")
     TEST = os.path.join(root_path, "images", "Test.png")
     TEST_SMALL = os.path.join(root_path, "images", "Test_Small.png")
     TEST_SMALL_2 = os.path.join(root_path, "images", "Test_Small_2.png")
     TEST_5_1 = os.path.join(root_path, "images", "5_1.png")
+    CENTEROID = os.path.join(root_path, "images", "Centeroid_Check.png")
 
 def load_image(Difficulty):
     """

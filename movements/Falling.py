@@ -100,9 +100,9 @@ def check_neighbor(obj_detector, cluster_1_id, cluster_2_id):
 
     for pixel in object_1_coordinates:
         if any(pix in object_2_coordinates for pix in
-               (tuple((pixel[0], pixel[1])), tuple((pixel[0] - 1, pixel[1])), tuple((pixel[0] + 1, pixel[1])),
-                tuple((pixel[0], pixel[1] - 1)), tuple((pixel[0], pixel[1] + 1)), tuple((pixel[0] - 2, pixel[1])),
-                tuple((pixel[0] + 2, pixel[1])), tuple((pixel[0], pixel[1] - 2)), tuple((pixel[0], pixel[1] + 2)))):
+               ((pixel[0], pixel[1]), (pixel[0] - 1, pixel[1]), (pixel[0] + 1, pixel[1]),
+                (pixel[0], pixel[1] - 1), (pixel[0], pixel[1] + 1), (pixel[0] - 2, pixel[1]),
+                (pixel[0] + 2, pixel[1]), (pixel[0], pixel[1] - 2), (pixel[0], pixel[1] + 2))):
             return True
 
     return False
