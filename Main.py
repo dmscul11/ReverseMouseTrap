@@ -56,3 +56,4 @@ if __name__ == "__main__":
     # Make a video
     create_movie(img_difficulty.name, len(original[0]), len(original))
 
+
