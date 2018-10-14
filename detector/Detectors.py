@@ -57,7 +57,7 @@ def detect_pivot(object):
         id = object.object_id
         internal_neighbors = object.internal_neighbors
         for n in internal_neighbors:
-            print(n)
+            # print(n)
             if objects[n].color == "y":
                 object.pivoted = True
                 object.pivoted_by = n
