@@ -1,22 +1,25 @@
 from objects.Object import Object
 import math
 
-def check_neighborhood(object, label_plane):
-    coordinates = object.get_coordinates()
-    object_id = object.object_id
+
+def check_neighborhood(obj, label_plane):
+    coordinates = obj.get_coordinates()
+    object_id = obj.object_id
     internal_neighbors = []
     external_neighbors = []
 
     boundaries = []
-
     for coord in coordinates:
-        neighbor = see_4_label_plane(coord[0], coord[1], label_plane) # x, y represenation
+        neighbor = see_4_label_plane(coord[0], coord[1], label_plane)  # x, y representation
+
         # if this list contains a 0, it is an external boundary
         if 0 in neighbor:
             for n in neighbor:
                 if (n != object_id) and (n != 0) and (n not in external_neighbors):
                     external_neighbors.append(n)
-                    object.point_of_impact = coord
+                    obj.point_of_impact = coord
+                    
+            # Boundary detection
             # Boundary detection it can provide some boundary not all
             boundaries.append((coord[0], coord[1]))
         else:
@@ -25,6 +28,9 @@ def check_neighborhood(object, label_plane):
                 if n != object_id and (n not in internal_neighbors):
                     internal_neighbors.append(n)
 
+    obj.internal_neighbors = internal_neighbors
+    obj.external_neighbors = external_neighbors
+    obj.boundaries = boundaries
     # Base Detection. Only look at the last element # Or Boundaries?
     bottom_countered = False
     for bound in boundaries:
@@ -64,15 +70,15 @@ def check_pixel_occupation(object):
 
     return True
 
-def check_centeroid(object):
+def check_centroid(object):
     if object.pixel_occupation < 2:
-        object.centeroid = object.get_coordinates()[0]
+        object.centroid = object.get_coordinates()[0]
     else:
         list_len = len(object.get_coordinates())
 
         # Simplified method
         middle = math.floor(list_len / 2)
-        object.centeroid = object.get_coordinates()[middle]
+        object.centroid = object.get_coordinates()[middle]
 
     return True
 
@@ -84,6 +90,7 @@ def detect_pivot(object):
         id = object.object_id
         internal_neighbors = object.internal_neighbors
         for n in internal_neighbors:
+            # print(n)
             if objects[n].color == "y":
                 object.pivoted = True
                 object.pivoted_by = n
@@ -107,6 +114,7 @@ def see_4_label_plane(row, col, label_plane):
         east = label_plane[row][col + 1]
     except:
         east = 0
+
     # What label that is is [north east south west] clockwise
     neighbor = [north, east, south, west]
 
@@ -117,4 +125,3 @@ def see_8_label_plane(x, y, label_plane):
     for row in range(x - 1, x + 2):
         for pix in range(y -1, y + 2):
             pass
-

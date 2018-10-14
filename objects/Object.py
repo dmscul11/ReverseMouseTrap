@@ -9,7 +9,7 @@ class Object:
         self.boundaries = []
         self.internal_neighbors = []
         self.external_neighbors = []
-        self.centeroid = None
+        self.centroid = None
 
         self.pixel_occupation = 0
 
@@ -34,6 +34,9 @@ class Object:
     def object_post_processing(self):
         self.size = len(self.coordinates)
 
+    def get_id(self):
+        return self.object_id
+
     def set_color(self, color):
         self.color = color
 
@@ -53,5 +56,5 @@ class Object:
         print(" ======================================== ")
         print("Object ID : ", self.object_id, "  Color : ", self.color, "  Pivoted : ", self.pivoted, "  Pivoted by : ", self.pivoted_by, "  String Attached : ", self.string_attached)
         print("Front end : ", self.front_end, "  Back end : ", self.back_end, "  Unstable : ", self.unstable, "  pixel occupation : ", self.pixel_occupation)
-        print("Center Coordinate : ", self.centeroid, "  Internal Neighbors : ", self.internal_neighbors, "  External Neighbors : ", self.external_neighbors)
+        print("Center Coordinate : ", self.centroid, "  Internal Neighbors : ", self.internal_neighbors, "  External Neighbors : ", self.external_neighbors)
         print("Point of Impact: ", self.point_of_impact)

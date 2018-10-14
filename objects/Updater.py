@@ -34,4 +34,4 @@ class ObjectUpdater(Thread):
     def run(self):
         check_neighborhood(self.object, self.label_plane)
         check_pixel_occupation(self.object)
-        check_centeroid(self.object)
+        check_centroid(self.object)

@@ -28,9 +28,9 @@ class World:
             World()
         return World.__instance
 
-    def create_world(self, objects, objects_dict, label_plane):
+    def create_world(self, objects, objects_dict, label_plane, object_stack):
         self.terminated = False
-        self.steps = 0
+        self.step_count = 0
         self.stability_count = 0
 
         self.world_row = len(label_plane)
@@ -38,6 +38,7 @@ class World:
 
         self.objects = objects
         self.objects_dict = objects_dict
+        self.object_stack = object_stack
 
         self.label_plane = label_plane
 
@@ -49,20 +50,23 @@ class World:
         Starts the simulation
         :return: Terminated: Bool
         """
-        print("Step : ", self.steps)
+        print("Step : ", self.step_count)
         # self.print_all_objects_properties()
 
-        # Simulating the fall first before checking other conditions
-        for obj in self.objects:
-            fall = will_fall(obj)
-            if fall:
-                self.unstable_objects.append(obj)
+        # detect movement for next object
+        obj = self.object_stack.pop()
+        objects_affected = self.move_object(obj)
+        self.object_stack.extend(objects_affected)   # add affected objects
 
-        if len(self.unstable_objects) != 0:
-            self.move_unstable_objects_down(self.unstable_objects)
+        # # Check boundary condition
+        # for obj in self.objects:
+        #     tip = will_tip(obj)
 
-        # Check boundary condition
+        # # Update objects that are changed
+        # update_objects(objects_to_update=self.maniputated_objects, label_plane=self.label_plane)
 
+        # # Reconstruct image & Update label_plane
+        # reconstructed_image = self.reconstruct_image(self.objects_dict)
         # Tipping
         tipping_objects = ()
         for obj in self.objects:
@@ -79,24 +83,25 @@ class World:
         if len(self.unstable_objects) != 0:
             self.move_tipping_objects(self.unstable_objects)
 
-        # Update objects that are changed
-        update_objects(objects_to_update=self.maniputated_objects, label_plane=self.label_plane)
+        # # Render and output image
+        # self.update_render(self.steps, reconstructed_image)
 
-        # Reconstruct image & Update label_plane
-        reconstructed_image = self.reconstruct_image(self.objects_dict)
+        # # Check termination condition
+        # self.steps += 1
+        # if len(self.unstable_objects) == 0:
+        #     self.stability_count += 1
+        # else:
+        #     self.stability_count = 0
 
-        # Render and output image
-        self.update_render(self.steps, reconstructed_image)
+        # if self.stability_count == 3:
+        #     self.terminated = True
 
-        # Check termination condition
-        self.steps += 1
-        if len(self.unstable_objects) == 0:
-            self.stability_count += 1
-        else:
-            self.stability_count = 0
 
-        if self.stability_count == 3:
-            self.terminated = True
+    def move_object(self, obj):
+
+        if obj[1] == 'down':
+            self.move_unstable_objects_down(obj)
+
 
     def move_unstable_objects_down(self, unstable_objects):
         self.stability_count = 0 # Reset stability count 0 This operation is need for all object manipulation algorithms

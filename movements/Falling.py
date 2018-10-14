@@ -1,13 +1,11 @@
-from detector.ObjectDetector import ObjectDetector
-from loader.ImageLoader import *
 import operator
 import copy
 
 
-def get_centroid(obj_detector, cluster_id):
+def get_centroid(obj):
     # Given obj_detector and the cluster ID desired, returns centroid
 
-    object_coordinates = obj_detector.get_objects()[cluster_id].coordinates
+    object_coordinates = obj.get_coordinates()
 
     x_sum = 0.0
     y_sum = 0.0
@@ -20,16 +18,15 @@ def get_centroid(obj_detector, cluster_id):
     return round(x_sum / count), round(y_sum / count)
 
 
-def get_base(obj_detector, cluster_id):
+def get_base(obj, label_plane):
     # Given obj_detector and the cluster ID desired, returns pixels at base of object
 
-    label_plane = obj_detector.get_label_plane()
-    object_coordinates = obj_detector.get_objects()[cluster_id].coordinates
+    object_coordinates = obj.get_coordinates()
 
     base = []
     for pixel in object_coordinates:
         try:
-            if label_plane[pixel[0] + 1][pixel[1]] != cluster_id:
+            if label_plane[pixel[0] + 1][pixel[1]] != obj.get_id():
                 base.append(pixel)
         except:
             # if bottom edge of label_plane was reached
@@ -40,18 +37,17 @@ def get_base(obj_detector, cluster_id):
     return base
 
 
-def check_instability(obj_detector, cluster_id):
+def check_instability(obj, label_plane):
     # Given obj_detector and the cluster ID desired, returns True if object will fall. If it will not fall, it returns
     # point about which the object should pivot or '0' denoting free fall
 
-    if obj_detector.get_objects()[cluster_id].get_color() == "d":
+    if obj.get_color() == "d":
          return False
 
-    label_plane = obj_detector.get_label_plane()
-    centroid = get_centroid(obj_detector, cluster_id)
-    base = get_base(obj_detector, cluster_id)
+    centroid = get_centroid(obj)
+    base = get_base(obj)
 
-    invalid_support = [0, cluster_id]
+    invalid_support = [0, obj.get_id()]
     left_supported = False
     left_support = base[0]
     right_supported = False
@@ -92,11 +88,12 @@ def check_instability(obj_detector, cluster_id):
     return left_support
 
 
-def check_neighbor(obj_detector, cluster_1_id, cluster_2_id):
+# DEPRECATED
+def check_neighbor(obj_1, obj_2):
     # Given obj_detector and the cluster IDs to compare, returns whether the objects are adjacent
 
-    object_1_coordinates = obj_detector.get_objects()[cluster_1_id].coordinates
-    object_2_coordinates = obj_detector.get_objects()[cluster_2_id].coordinates
+    object_1_coordinates = obj_1.get_coordinates()
+    object_2_coordinates = obj_2.get_coordinates()
 
     for pixel in object_1_coordinates:
         if any(pix in object_2_coordinates for pix in
@@ -108,7 +105,8 @@ def check_neighbor(obj_detector, cluster_1_id, cluster_2_id):
     return False
 
 
-def get_neighbors(obj_detector, cluster_id):
+# DEPRECATED
+def get_neighbors(obj):
     # Given obj_detector and a cluster ID, returns all neighboring clusters (if any)
 
     neighbors = []
@@ -119,6 +117,7 @@ def get_neighbors(obj_detector, cluster_id):
     return neighbors
 
 
+# DEPRECATED
 def free_movement(obj_detector, cluster_id):
     # Given obj_detector and a cluster ID of a valid free blue object, advances its movement by one and returns
 
