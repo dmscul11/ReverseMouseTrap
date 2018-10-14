@@ -18,7 +18,9 @@ def check_neighborhood(obj, label_plane):
                 if (n != object_id) and (n != 0) and (n not in external_neighbors):
                     external_neighbors.append(n)
                     obj.point_of_impact = coord
+                    
             # Boundary detection
+            # Boundary detection it can provide some boundary not all
             boundaries.append((coord[0], coord[1]))
         else:
             # This gotta be the internal neighbor
@@ -29,6 +31,36 @@ def check_neighborhood(obj, label_plane):
     obj.internal_neighbors = internal_neighbors
     obj.external_neighbors = external_neighbors
     obj.boundaries = boundaries
+    # Base Detection. Only look at the last element # Or Boundaries?
+    bottom_countered = False
+    for bound in boundaries:
+        # See neighbor returns ids of surrounding objects in clockwise ordering
+        # Upper object will be shown in the north direction
+        neighbor = see_4_label_plane(bound[0], bound[1], label_plane)
+        #North
+        n = neighbor[0]
+        #East
+        e = neighbor[1]
+        #South
+        s = neighbor[2]
+        #West
+        w = neighbor[3]
+
+        if n != 0 and n != object_id:
+            object.upper_object = n
+            object.point_of_impact = bound
+        if s != 0 and s != object_id:
+            object.bottom_object = s
+            bottom_countered = True
+            object.unstable = False
+            object.point_of_impact = bound
+
+        if bottom_countered == False:
+            object.unstable = True
+
+    object.internal_neighbors = internal_neighbors
+    object.external_neighbors = external_neighbors
+    object.boundaries = boundaries
 
     # Internal & External Neighbors are mixed
     return internal_neighbors, external_neighbors
@@ -65,21 +97,21 @@ def detect_pivot(object):
 
     return True
 
-def see_4_label_plane(x, y, label_plane):
+def see_4_label_plane(row, col, label_plane):
     try:
-        north = label_plane[x][y - 1]
+        north = label_plane[row - 1][col]
     except:
         north = 0
     try:
-        south = label_plane[x][y + 1]
+        south = label_plane[row + 1][col]
     except:
         south = 0
     try:
-        west = label_plane[x - 1][y]
+        west = label_plane[row][col - 1]
     except:
         west = 0
     try:
-        east = label_plane[x + 1][y]
+        east = label_plane[row][col + 1]
     except:
         east = 0
 
@@ -89,6 +121,7 @@ def see_4_label_plane(x, y, label_plane):
     return neighbor
 
 def see_8_label_plane(x, y, label_plane):
+    # Not implemented
     for row in range(x - 1, x + 2):
         for pix in range(y -1, y + 2):
             pass

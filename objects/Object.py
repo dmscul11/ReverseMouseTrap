@@ -26,7 +26,9 @@ class Object:
         self.front_end = []
         self.back_end = []
         self.width = 0
-
+        #
+        self.upper_object = None
+        self.bottom_object = None
         self.point_of_impact = None
 
     def object_post_processing(self):

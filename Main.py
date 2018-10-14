@@ -43,6 +43,8 @@ if __name__ == "__main__":
     objects_dict = detector.get_objects()
     label_plane = detector.get_label_plane()
 
+    # detector.print_label_plane()
+
     # Discover properties of objects
     update_objects(objects, label_plane) # Internal update
 

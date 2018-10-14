@@ -67,6 +67,21 @@ class World:
 
         # # Reconstruct image & Update label_plane
         # reconstructed_image = self.reconstruct_image(self.objects_dict)
+        # Tipping
+        tipping_objects = ()
+        for obj in self.objects:
+            tipping_objects = will_tip(obj) # (Bool, direction)
+            # print(obj.centeroid, "  ", obj.point_of_impact)
+            try:
+                if tipping_objects[0]:
+                    # Move it right or left
+                    # Unstable_objects cleared so we can append tuple
+                    self.unstable_objects.append((obj, tipping_objects[1]))
+            except:
+                pass
+
+        if len(self.unstable_objects) != 0:
+            self.move_tipping_objects(self.unstable_objects)
 
         # # Render and output image
         # self.update_render(self.steps, reconstructed_image)
@@ -89,14 +104,29 @@ class World:
 
 
     def move_unstable_objects_down(self, unstable_objects):
-        self.stability_count = 0 # Reset stability count 0 THis operation is need for all object manipulation algorithms
+        self.stability_count = 0 # Reset stability count 0 This operation is need for all object manipulation algorithms
         for object in unstable_objects:
             self.maniputated_objects.append(object)
             move_object_down(object)
 
         self.unstable_objects.clear()
 
-    def get_color_RGB(self, color_string):
+    def move_tipping_objects(self, tipping_objects):
+        self.stability_count = 0
+        for object in tipping_objects:
+            self.maniputated_objects.append(object[0])
+            if object[1] == "right":
+                move_object_right(object[0])
+                move_object_right(object[0])
+                move_object_right(object[0])
+            elif object[1] == "left":
+                move_object_left(object[0])
+                move_object_left(object[0])
+                move_object_left(object[0])
+
+        self.unstable_objects.clear()
+
+    def get_color_BGR(self, color_string):
         if color_string == "w":
             return Colors.W.value
 
@@ -114,7 +144,7 @@ class World:
 
     def update_render(self, step, reconstructed_image):
         """
-        Updates state after an iteration
+        Updates state after an iteration outputs the image
         :return:
         """
         dir_path = os.path.join(os.path.dirname(__file__), "render_files")
