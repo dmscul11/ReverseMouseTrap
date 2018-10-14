@@ -12,9 +12,9 @@ def check_neighborhood(object, label_plane):
     for coord in coordinates:
         neighbor = see_4_label_plane(coord[0], coord[1], label_plane) # x, y represenation
         # if this list contains a 0, it is an external boundary
-        if 0 in neighbor:
+        if (not object_id) in neighbor:
             for n in neighbor:
-                if (n != object_id) and (n != 0) and (n not in external_neighbors):
+                if (n != object_id) and (n != 0) and (n not in external_neighbors) and (n not in internal_neighbors):
                     external_neighbors.append(n)
                     object.point_of_impact = coord
             # Boundary detection it can provide some boundary not all
@@ -22,7 +22,7 @@ def check_neighborhood(object, label_plane):
         else:
             # This gotta be the internal neighbor
             for n in neighbor:
-                if n != object_id and (n not in internal_neighbors):
+                if n != object_id and (n not in internal_neighbors) and (n not in external_neighbors):
                     internal_neighbors.append(n)
 
     # Base Detection. Only look at the last element # Or Boundaries?

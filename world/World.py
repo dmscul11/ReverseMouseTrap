@@ -112,11 +112,7 @@ class World:
             self.maniputated_objects.append(object[0])
             if object[1] == "right":
                 move_object_right(object[0])
-                move_object_right(object[0])
-                move_object_right(object[0])
             elif object[1] == "left":
-                move_object_left(object[0])
-                move_object_left(object[0])
                 move_object_left(object[0])
 
         self.unstable_objects.clear()
