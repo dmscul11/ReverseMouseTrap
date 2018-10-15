@@ -31,7 +31,7 @@ def create_movie(image_name, frame_width, frame_height):
     vid.release()
 
 if __name__ == "__main__":
-    img_difficulty = Difficulty.MEDIUM_FAST
+    img_difficulty = Difficulty.TEST_SMALL
     original, new, binary, color_matrix = load_image(img_difficulty)
 
     detector = ObjectDetector(new, binary, color_matrix)

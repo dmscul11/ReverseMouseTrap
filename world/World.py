@@ -62,7 +62,6 @@ class World:
             self.move_unstable_objects_down(self.unstable_objects)
 
         # Check boundary condition
-
         # Tipping
         tipping_objects = ()
         for obj in self.objects:
@@ -79,15 +78,31 @@ class World:
         if len(self.unstable_objects) != 0:
             self.move_tipping_objects(self.unstable_objects)
 
+        # Tilt
+        tilting_objects = []
+        tilt_properties = []
+        for obj in self.objects:
+            tilt = will_tilt(obj)
+            if tilt == None:
+                pass
+            else:
+                tilting_objects.append(obj)
+                tilt_properties.append(tilt)
+
+        self.tilt_objects(tilting_objects, tilt_properties)
+
         # Update objects that are changed
-        update_objects(objects_to_update=self.maniputated_objects, label_plane=self.label_plane)
+        # object? manipulated objects?
+        update_objects(objects_to_update=self.objects, label_plane=self.label_plane)
 
         # Reconstruct image & Update label_plane
         reconstructed_image = self.reconstruct_image(self.objects_dict)
 
         # Render and output image
         self.update_render(self.steps, reconstructed_image)
+        self.check_termination_condition()
 
+    def check_termination_condition(self):
         # Check termination condition
         self.steps += 1
         if len(self.unstable_objects) == 0:
@@ -116,6 +131,13 @@ class World:
                 move_object_left(object[0])
 
         self.unstable_objects.clear()
+
+    def tilt_objects(self, tilting_objects, tilt_properties):
+        for idx in range(len(tilting_objects)):
+            obj = tilting_objects[idx] # Lever
+            tilt_property = tilt_properties[idx]
+            new_lever = rotate_pivot(obj, tilt_property[1])
+            obj.coordinates = new_lever
 
     def get_color_BGR(self, color_string):
         if color_string == "w":

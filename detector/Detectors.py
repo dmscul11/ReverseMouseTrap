@@ -2,6 +2,7 @@ from objects.Object import Object
 import math
 
 def check_neighborhood(object, label_plane):
+    from world.World import World
     coordinates = object.get_coordinates()
     object_id = object.object_id
     internal_neighbors = []
@@ -10,9 +11,9 @@ def check_neighborhood(object, label_plane):
     boundaries = []
 
     for coord in coordinates:
-        neighbor = see_4_label_plane(coord[0], coord[1], label_plane) # x, y represenation
+        neighbor = see_8_label_plane(coord[0], coord[1], label_plane) # x, y represenation
         # if this list contains a 0, it is an external boundary
-        if (not object_id) in neighbor:
+        if 0 in neighbor:
             for n in neighbor:
                 if (n != object_id) and (n != 0) and (n not in external_neighbors) and (n not in internal_neighbors):
                     external_neighbors.append(n)
@@ -22,8 +23,9 @@ def check_neighborhood(object, label_plane):
         else:
             # This gotta be the internal neighbor
             for n in neighbor:
-                if n != object_id and (n not in internal_neighbors) and (n not in external_neighbors):
-                    internal_neighbors.append(n)
+                if n != 0:
+                    if (n != object_id) and (n not in internal_neighbors) and World.get_instance().objects_dict[n].color == ("y" or "g"):
+                        internal_neighbors.append(n)
 
     # Base Detection. Only look at the last element # Or Boundaries?
     bottom_countered = False
@@ -56,12 +58,8 @@ def check_neighborhood(object, label_plane):
     object.external_neighbors = external_neighbors
     object.boundaries = boundaries
 
-    # Internal & External Neighbors are mixed
-    return internal_neighbors, external_neighbors
-
 def check_pixel_occupation(object):
     object.pixel_occupation = len(object.coordinates)
-
     return True
 
 def check_centeroid(object):
@@ -81,14 +79,11 @@ def detect_pivot(object):
     # Look for yellow
     objects = World.get_instance().objects_dict
     if object.get_color() is "b":
-        id = object.object_id
         internal_neighbors = object.internal_neighbors
         for n in internal_neighbors:
             if objects[n].color == "y":
                 object.pivoted = True
                 object.pivoted_by = n
-
-    return True
 
 def see_4_label_plane(row, col, label_plane):
     try:
@@ -114,7 +109,10 @@ def see_4_label_plane(row, col, label_plane):
 
 def see_8_label_plane(x, y, label_plane):
     # Not implemented
+    neighbor = []
     for row in range(x - 1, x + 2):
         for pix in range(y -1, y + 2):
-            pass
+            neighbor.append(label_plane[row][pix])
+
+    return neighbor
 

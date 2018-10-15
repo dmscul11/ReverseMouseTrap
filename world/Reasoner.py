@@ -20,6 +20,18 @@ def will_tip(object):
         elif slope <= -0.2:
             return (True, "left")
 
+def will_tilt(object):
+    from world.World import World
+    if object.pivoted:
+        # Determine a direction of tilting
+        for neighbor in object.external_neighbors:
+            poi = object.point_of_impact
+            center = object.centeroid
+
+            if poi[1] > center[1]:
+                return (True, "clockwise")
+            elif poi[1] < center[1]:
+                return (True, "counterclockwise")
 
 def calculate_centroid_slope(object_1, object_2):
     obj_1_centeroid = object_1.centeroid
@@ -29,10 +41,10 @@ def calculate_centroid_slope(object_1, object_2):
     except:
         pass
 
+
 def calculate_slope(point_1, point_2):
     try:
         slope = (point_1[1] - point_2[1]) / (point_2[0] - point_1[0])
-        print(slope, " ", point_1, " ", point_2)
         return slope
     except:
         return 0

@@ -3,8 +3,12 @@ from detector.Detectors import *
 import time
 from threading import Thread
 
+__update_counter = 0
+
 def update_objects(objects_to_update, label_plane):
     # Divide
+    global __update_counter
+
     object_threads = []
     if type(objects_to_update) == dict:
         for obj in objects_to_update.values():
@@ -18,12 +22,17 @@ def update_objects(objects_to_update, label_plane):
 
     # These methods needs interaction with other objects.
     # Running sequentially
-    if type(objects_to_update) == dict:
-        for obj in objects_to_update.values():
-            detect_pivot(obj)
-    elif type(objects_to_update) == list:
-        for obj in objects_to_update:
-            detect_pivot(obj)
+    if __update_counter < 3:
+        if type(objects_to_update) == dict:
+            for obj in objects_to_update.values():
+                detect_pivot(obj)
+        elif type(objects_to_update) == list:
+            for obj in objects_to_update:
+                detect_pivot(obj)
+        __update_counter += 1
+    else:
+        __update_counter += 1
+        pass
 
 class ObjectUpdater(Thread):
     def __init__(self, object, label_plane):
