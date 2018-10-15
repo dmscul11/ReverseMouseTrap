@@ -14,21 +14,21 @@ def rotate_pivot(lever, direction):
     if direction == "counterclockwise":
         for p in lever_coords:
             # move pixels down left
-            if (p[0] < center_pixel[0]) and (p[0] != 0):
+            if (p[1] < center_pixel[1]) and (p[1] != 0):
                 new_lever.append((p[0] + 1, p[1] - 1))
 
             # move pixels up right
-            elif (p[0] > center_pixel[0]) and (p[1] != 0):
+            elif (p[1] > center_pixel[1]) and (p[0] != 0):
                 new_lever.append((p[0] - 1, p[1] + 1))
 
     elif direction == "clockwise":
         for p in lever_coords:
             # move pixels down left
-            if (p[0] < center_pixel[0]) and (p[0] != 0) and (p[0] != 1):
+            if (p[0] < center_pixel[0]):
                 new_lever.append((p[0] - 1, p[1] - 1))
 
             # move pixels up right
-            elif p[1] > center_pixel[1]:
+            elif p[0] > center_pixel[0]:
                 new_lever.append((p[0] + 1, p[1] + 1))
 
     return new_lever

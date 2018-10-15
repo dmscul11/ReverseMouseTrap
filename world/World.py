@@ -50,7 +50,7 @@ class World:
         :return: Terminated: Bool
         """
         print("Step : ", self.steps)
-        # self.print_all_objects_properties()
+        self.print_all_objects_properties()
 
         # Simulating the fall first before checking other conditions
         for obj in self.objects:

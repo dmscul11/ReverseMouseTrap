@@ -84,6 +84,9 @@ def detect_pivot(object):
             if objects[n].color == "y":
                 object.pivoted = True
                 object.pivoted_by = n
+        for n in object.external_neighbors:
+            if objects[n].color == "g":
+                object.string_attached = True
 
 def see_4_label_plane(row, col, label_plane):
     try:

@@ -1,6 +1,6 @@
 
 def will_fall(object):
-    if object.color == "b" and object.pivoted == False and object.unstable == True:
+    if object.color == "b" and object.pivoted == False and object.unstable == True and object.string_attached == False:
         # Then it can fall.
         # object.print_properties()
         return True
@@ -12,26 +12,40 @@ def will_tip(object):
     if object.color == "b" and object.pivoted == False and object.unstable == False and object.point_of_impact != None:
         # Determine a direction of tipping
         slope = calculate_slope(object.centeroid, object.point_of_impact)
-        if slope > -0.2 and slope < 0.2: # / like this. might tip left
-            # Assume stable
-            return False
-        elif slope >= 0.2:
-            return (True, "right")
-        elif slope <= -0.2:
-            return (True, "left")
 
-def will_tilt(object):
-    from world.World import World
-    if object.pivoted:
-        # Determine a direction of tilting
         for neighbor in object.external_neighbors:
             poi = object.point_of_impact
             center = object.centeroid
 
             if poi[1] > center[1]:
-                return (True, "clockwise")
+                if slope <=  -0.2:
+                    return (True, "right")
+                elif slope >= 0.2:
+                    return (True, "left")
             elif poi[1] < center[1]:
+                if slope <=  -0.2:
+                    return (True, "left")
+                elif slope >= 0.2:
+                    return (True, "right")
+
+def will_tilt(object):
+    from world.World import World
+    if object.pivoted and not object.string_attached:
+        # Determine a direction of tilting
+        slope = calculate_slope(object.centeroid, object.point_of_impact)
+
+        poi = object.point_of_impact
+        center = object.centeroid
+        if poi[1] > center[1]:
+            if slope <= 0:
+                return (True, "clockwise")
+            elif slope >= 0:
                 return (True, "counterclockwise")
+        elif poi[1] < center[1]:
+            if slope <= 0:
+                return (True, "counterclockwise")
+            elif slope >= 0:
+                return (True, "clockwise")
 
 def calculate_centroid_slope(object_1, object_2):
     obj_1_centeroid = object_1.centeroid
