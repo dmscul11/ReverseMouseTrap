@@ -16,9 +16,9 @@ def will_tip(obj):
         for target in obj.external_neighbors:
             calculate_centroid_slope(obj, World.get_instance().objects_dict[target])
             
-    if object.color == "b" and object.pivoted == False and object.unstable == False and object.point_of_impact != None:
+    if obj.color == "b" and obj.pivoted == False and obj.unstable == False and obt.point_of_impact != None:
         # Determine a direction of tipping
-        slope = calculate_slope(object.centeroid, object.point_of_impact)
+        slope = calculate_slope(obj.centeroid, obj.point_of_impact)
         
         if slope > -0.5 and slope < 0.5: # / like this. might tip left
             # Assume stable

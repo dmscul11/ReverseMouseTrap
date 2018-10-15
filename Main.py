@@ -4,6 +4,7 @@ from detector.ObjectDetector import *
 from detector.Detectors import *
 from movements.Pivoting import *
 from world.Reasoner import *
+from loader.ImageLoader import *
 
 from objects.Updater import update_objects
 from world.World import World
@@ -45,6 +46,9 @@ if __name__ == "__main__":
 
     # detector.print_label_plane()
 
+    # call world
+    World.get_instance().create_world(objects=objects, objects_dict=objects_dict, label_plane=label_plane)
+
     # Discover properties of objects
     update_objects(objects, label_plane) # Internal update
 
@@ -55,11 +59,10 @@ if __name__ == "__main__":
         if fall:
             object_stack.append((o, 'down'))
 
-    # call world
-    world = World.get_instance()
-    world.create_world(objects=objects, objects_dict=objects_dict, label_plane=label_plane, object_stack=object_stack)
-    while world.object_stack:
-        world.simulate()
+    World.get_instance().set_object_stack(object_stack)
+
+    while World.get_instance().object_stack:
+        World.get_instance().simulate()
 
     # Make a video
     create_movie(img_difficulty.name, len(original[0]), len(original))

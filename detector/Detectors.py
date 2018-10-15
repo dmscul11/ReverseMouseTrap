@@ -47,20 +47,20 @@ def check_neighborhood(obj, label_plane):
         w = neighbor[3]
 
         if n != 0 and n != object_id:
-            object.upper_object = n
-            object.point_of_impact = bound
+            obj.upper_object = n
+            obj.point_of_impact = bound
         if s != 0 and s != object_id:
-            object.bottom_object = s
+            obj.bottom_object = s
             bottom_countered = True
-            object.unstable = False
-            object.point_of_impact = bound
+            obj.unstable = False
+            obj.point_of_impact = bound
 
         if bottom_countered == False:
-            object.unstable = True
+            obj.unstable = True
 
-    object.internal_neighbors = internal_neighbors
-    object.external_neighbors = external_neighbors
-    object.boundaries = boundaries
+    obj.internal_neighbors = internal_neighbors
+    obj.external_neighbors = external_neighbors
+    obj.boundaries = boundaries
 
     # Internal & External Neighbors are mixed
     return internal_neighbors, external_neighbors
