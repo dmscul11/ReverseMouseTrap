@@ -19,6 +19,9 @@ class Difficulty(Enum):
     TEST_SMALL = os.path.join(root_path, "images", "Test_Small.png")
     TEST_SMALL_2 = os.path.join(root_path, "images", "Test_Small_2.png")
     TEST_5_1 = os.path.join(root_path, "images", "5_1.png")
+    B = os.path.join(root_path, 'images', 'B.png')
+    G = os.path.join(root_path, 'images', 'G.png')
+    L = os.path.join(root_path, 'images', 'L.png')
 
 def load_image(Difficulty):
     """
