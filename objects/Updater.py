@@ -20,9 +20,12 @@ def update_objects(objects_to_update, label_plane):
     for t in object_threads:
         t.start()
 
+    for t in object_threads:
+        t.join()
+
     # These methods needs interaction with other objects.
     # Running sequentially
-    if __update_counter < 3:
+    if __update_counter == 0:
         if type(objects_to_update) == dict:
             for obj in objects_to_update.values():
                 detect_pivot(obj)
@@ -43,4 +46,5 @@ class ObjectUpdater(Thread):
     def run(self):
         check_neighborhood(self.object, self.label_plane)
         check_pixel_occupation(self.object)
-        check_centeroid(self.object)
+        # check_centeroid(self.object)
+        get_centroid(self.object.object_id)

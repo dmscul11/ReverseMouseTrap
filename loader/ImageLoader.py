@@ -18,6 +18,15 @@ class Difficulty(Enum):
     TEST_5_1 = os.path.join(root_path, "images", "5_1.png")
     CENTEROID = os.path.join(root_path, "images", "Centeroid_Check.png")
 
+    B = os.path.join(root_path, "images", "B.png")
+    G = os.path.join(root_path, "images", "G.png")
+    L = os.path.join(root_path, "images", "L.png")
+
+    Dropandtip = os.path.join(root_path, "images", "DropAndTip.png")
+    Liquid = os.path.join(root_path, "images", "Liquid.png")
+    Liquid2 = os.path.join(root_path, "images", "Liquid_2.png")
+    Scatter = os.path.join(root_path, "images", "Scatter.png")
+
 def load_image(Difficulty):
     """
     Blue [255. 0. 0.]

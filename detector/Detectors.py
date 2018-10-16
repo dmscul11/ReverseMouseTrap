@@ -10,14 +10,17 @@ def check_neighborhood(object, label_plane):
 
     boundaries = []
 
+    pivot_found = False
+
     for coord in coordinates:
         neighbor = see_8_label_plane(coord[0], coord[1], label_plane) # x, y represenation
         # if this list contains a 0, it is an external boundary
         if 0 in neighbor:
             for n in neighbor:
-                if (n != object_id) and (n != 0) and (n not in external_neighbors) and (n not in internal_neighbors):
+                if (n != object_id) and (n != 0) and (n not in external_neighbors):
                     external_neighbors.append(n)
                     object.point_of_impact = coord
+
             # Boundary detection it can provide some boundary not all
             boundaries.append((coord[0], coord[1]))
         else:
@@ -26,6 +29,9 @@ def check_neighborhood(object, label_plane):
                 if n != 0:
                     if (n != object_id) and (n not in internal_neighbors) and World.get_instance().objects_dict[n].color == ("y" or "g"):
                         internal_neighbors.append(n)
+
+    object.internal_neighbors = internal_neighbors
+    object.external_neighbors = external_neighbors
 
     # Base Detection. Only look at the last element # Or Boundaries?
     bottom_countered = False
@@ -54,8 +60,6 @@ def check_neighborhood(object, label_plane):
         if bottom_countered == False:
             object.unstable = True
 
-    object.internal_neighbors = internal_neighbors
-    object.external_neighbors = external_neighbors
     object.boundaries = boundaries
 
 def check_pixel_occupation(object):
@@ -63,16 +67,43 @@ def check_pixel_occupation(object):
     return True
 
 def check_centeroid(object):
+    centeroid = None
     if object.pixel_occupation < 2:
-        object.centeroid = object.get_coordinates()[0]
+        try:
+            object.centeroid = object.get_coordinates()[0]
+            centeroid = object.get_coordinates()[0]
+            return centeroid
+        except:
+            object.centeroid = (0, 0)
+            centeroid = (0, 0)
+            return centeroid
     else:
         list_len = len(object.get_coordinates())
 
         # Simplified method
         middle = math.floor(list_len / 2)
         object.centeroid = object.get_coordinates()[middle]
+        centeroid = object.centeroid
+        return centeroid
 
-    return True
+def get_centroid(cluster_id):
+    from world.World import World
+    object_coordinates = World.get_instance().objects_dict[cluster_id].coordinates
+
+    x_sum = 0.0
+    y_sum = 0.0
+    count = 0
+    for pixel in object_coordinates:
+        x_sum += pixel[0]
+        y_sum += pixel[1]
+        count += 1
+
+    try:
+        centeroid = (round(x_sum / count), round(y_sum / count))
+    except:
+        centeroid = check_centeroid(World.get_instance().objects_dict[cluster_id])
+
+    World.get_instance().objects_dict[cluster_id].centeroid = centeroid
 
 def detect_pivot(object):
     from world.World import World
@@ -115,7 +146,10 @@ def see_8_label_plane(x, y, label_plane):
     neighbor = []
     for row in range(x - 1, x + 2):
         for pix in range(y -1, y + 2):
-            neighbor.append(label_plane[row][pix])
+            try:
+                neighbor.append(label_plane[row][pix])
+            except:
+                neighbor.append(0) # Image Boundary
 
     return neighbor
 

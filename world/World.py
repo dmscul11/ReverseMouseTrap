@@ -50,7 +50,7 @@ class World:
         :return: Terminated: Bool
         """
         print("Step : ", self.steps)
-        self.print_all_objects_properties()
+        # self.print_all_objects_properties()
 
         # Simulating the fall first before checking other conditions
         for obj in self.objects:
@@ -79,17 +79,17 @@ class World:
             self.move_tipping_objects(self.unstable_objects)
 
         # Tilt
-        tilting_objects = []
         tilt_properties = []
         for obj in self.objects:
             tilt = will_tilt(obj)
-            if tilt == None:
+            if tilt == None or tilt == False:
                 pass
             else:
-                tilting_objects.append(obj)
+                self.unstable_objects.append(obj)
                 tilt_properties.append(tilt)
 
-        self.tilt_objects(tilting_objects, tilt_properties)
+        if len(self.unstable_objects) != 0:
+            self.tilt_objects(self.unstable_objects, tilt_properties)
 
         # Update objects that are changed
         # object? manipulated objects?
@@ -113,6 +113,9 @@ class World:
         if self.stability_count == 3:
             self.terminated = True
 
+        if self.steps == 500:
+            self.terminated = True
+
     def move_unstable_objects_down(self, unstable_objects):
         self.stability_count = 0 # Reset stability count 0 This operation is need for all object manipulation algorithms
         for object in unstable_objects:
@@ -127,17 +130,24 @@ class World:
             self.maniputated_objects.append(object[0])
             if object[1] == "right":
                 move_object_right(object[0])
+                move_object_right(object[0])
+                move_object_right(object[0])
             elif object[1] == "left":
+                move_object_left(object[0])
+                move_object_left(object[0])
                 move_object_left(object[0])
 
         self.unstable_objects.clear()
 
     def tilt_objects(self, tilting_objects, tilt_properties):
+        self.stability_count = 0
         for idx in range(len(tilting_objects)):
             obj = tilting_objects[idx] # Lever
             tilt_property = tilt_properties[idx]
             new_lever = rotate_pivot(obj, tilt_property[1])
             obj.coordinates = new_lever
+
+        self.unstable_objects.clear()
 
     def get_color_BGR(self, color_string):
         if color_string == "w":
@@ -194,8 +204,11 @@ class World:
 
             for coord in coordinates:
                 # Push color
-                reconstructed_image[coord[0]][coord[1]] = self.get_color_BGR(color)
-                self.label_plane[coord[0]][coord[1]] = objects[object_idx].object_id
+                try:
+                    reconstructed_image[coord[0]][coord[1]] = self.get_color_BGR(color)
+                    self.label_plane[coord[0]][coord[1]] = objects[object_idx].object_id
+                except:
+                    pass
 
         return reconstructed_image
 

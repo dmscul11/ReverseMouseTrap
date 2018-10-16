@@ -18,34 +18,41 @@ def will_tip(object):
             center = object.centeroid
 
             if poi[1] > center[1]:
-                if slope <=  -0.2:
+                if slope <= 0:
+                    return (True, "left")
+                elif slope >= 0:
                     return (True, "right")
-                elif slope >= 0.2:
-                    return (True, "left")
             elif poi[1] < center[1]:
-                if slope <=  -0.2:
+                if slope <= 0:
                     return (True, "left")
-                elif slope >= 0.2:
+                elif slope >= 0:
                     return (True, "right")
 
 def will_tilt(object):
     from world.World import World
-    if object.pivoted and not object.string_attached:
+    if object.pivoted and (not object.string_attached) and (object.color == "b"):
         # Determine a direction of tilting
         slope = calculate_slope(object.centeroid, object.point_of_impact)
 
         poi = object.point_of_impact
         center = object.centeroid
-        if poi[1] > center[1]:
-            if slope <= 0:
-                return (True, "clockwise")
-            elif slope >= 0:
-                return (True, "counterclockwise")
-        elif poi[1] < center[1]:
-            if slope <= 0:
-                return (True, "counterclockwise")
-            elif slope >= 0:
-                return (True, "clockwise")
+        if poi == None or center == None:
+            return False
+        else:
+            if poi[1] > center[1]:
+                if slope <= -0.2:
+                    return (True, "clockwise")
+                elif slope >= 0.2:
+                    return (True, "counterclockwise")
+                else:
+                    return False
+            elif poi[1] < center[1]:
+                if slope <= -0.2:
+                    return (True, "counterclockwise")
+                elif slope >= 0.2:
+                    return (True, "clockwise")
+                else:
+                    return False
 
 def calculate_centroid_slope(object_1, object_2):
     obj_1_centeroid = object_1.centeroid
